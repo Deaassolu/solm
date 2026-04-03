@@ -47,8 +47,8 @@ body{
 #app{position:fixed;inset:0;display:none;flex-direction:column;}
 #app.visible{display:flex;}
 /* SCREENS */
-.screen{position:absolute;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;padding:0;opacity:0;pointer-events:none;-webkit-overflow-scrolling:touch;transition:opacity 0.22s ease,transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);transform:translateY(8px);}
-.screen.active{opacity:1;pointer-events:auto;transform:translateY(0);}
+.screen{position:absolute;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;padding:0;opacity:0;pointer-events:none;-webkit-overflow-scrolling:touch;transition:opacity 0.15s ease;will-change:opacity;}
+.screen.active{opacity:1;pointer-events:auto;}
 /* NAV */
 #nav{position:fixed;bottom:0;left:0;right:0;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--stone);border-top:1px solid var(--rune);display:flex;z-index:100;}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:transparent;color:var(--dim);font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;transition:color 0.2s ease,transform 0.1s ease;-webkit-user-select:none;position:relative;}
@@ -95,24 +95,28 @@ h1,h2,h3,.cinzel{font-family:'Cinzel',serif;}
 #weekly-intent-wrap.set{border-left-color:var(--gold);}
 #weekly-intent-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:6px;}
 #weekly-intent{width:100%;background:transparent;border:none;border-bottom:1px solid var(--rune);color:var(--light);font-family:'Crimson Text',serif;font-size:15px;padding:4px 0;outline:none;}
-#hugr-msg{font-family:'Crimson Text',serif;font-style:italic;font-size:15px;color:var(--dim);line-height:1.7;margin:16px 0;padding-left:12px;border-left:2px solid var(--gold-dim);opacity:0;min-height:20px;transition:opacity 0.8s ease;}
+#hugr-msg{font-family:'Crimson Text',serif;font-style:italic;font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 16px;padding:8px 12px;border-left:2px solid var(--rune);opacity:0;min-height:0;transition:opacity 0.6s ease;}
+#hugr-msg:empty{display:none;}
 #skoll-line{font-family:'Cinzel',serif;font-size:11px;color:var(--ember);letter-spacing:2px;margin:8px 0;display:none;}
 #fallow-indicator{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--green);padding:8px 16px;display:none;border-bottom:1px solid var(--rune);}
-/* CONVERSATION */
-#convo-wrap{margin:16px 0;border-top:1px solid var(--rune);padding-top:12px;}
-#convo-thread{max-height:300px;overflow-y:auto;margin-bottom:12px;}
+/* CONVERSATION — centerpiece of Solm */
+#convo-wrap{margin:0 0 20px;padding:0;}
+#convo-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:8px;}
+#convo-thread{min-height:120px;max-height:60vh;overflow-y:auto;margin-bottom:12px;padding-bottom:4px;}
 #convo-thread::-webkit-scrollbar{width:2px;}
 #convo-thread::-webkit-scrollbar-thumb{background:var(--rune);}
-.convo-msg{margin-bottom:12px;padding:0;}
-.convo-msg.user .convo-text{font-family:'Crimson Text',serif;font-size:15px;color:var(--light);padding-left:12px;border-left:2px solid var(--rune);}
+#convo-thread:empty::after{content:'The fire is already burning.';font-family:'Crimson Text',serif;font-style:italic;font-size:14px;color:var(--muted);display:block;padding:24px 0;text-align:center;}
+.convo-msg{margin-bottom:14px;padding:0;animation:convoIn 0.2s ease;}
+@keyframes convoIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.convo-msg.user .convo-text{font-family:'Crimson Text',serif;font-size:15px;color:var(--light);padding-left:12px;border-left:2px solid var(--rune);line-height:1.6;}
 .convo-msg.hugr .convo-text{font-family:'Crimson Text',serif;font-style:italic;font-size:15px;color:var(--dim);padding-left:12px;border-left:2px solid var(--gold-dim);line-height:1.7;}
-.convo-time{font-family:'Cinzel',serif;font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:2px;padding-left:14px;}
-#convo-input-wrap{display:flex;gap:8px;align-items:flex-end;}
+.convo-time{font-family:'Cinzel',serif;font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:3px;padding-left:14px;}
+#convo-input-wrap{display:flex;gap:8px;align-items:flex-end;border-top:1px solid var(--rune);padding-top:10px;}
 #convo-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--rune);color:var(--light);font-family:'Crimson Text',serif;font-size:15px;padding:6px 0;outline:none;resize:none;min-height:24px;max-height:100px;}
-#convo-send{background:transparent;border:1px solid var(--rune);color:var(--dim);font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;padding:6px 12px;cursor:pointer;transition:all 0.2s ease;flex-shrink:0;}
+#convo-send{background:transparent;border:1px solid var(--rune);color:var(--dim);font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;padding:6px 12px;cursor:pointer;transition:all 0.15s ease;flex-shrink:0;}
 #convo-send:active{color:var(--gold);border-color:var(--gold);transform:scale(0.94);}
 #convo-input:focus ~ #convo-send,#convo-send.ready{border-color:var(--gold-dim);color:var(--gold-dim);}
-#convo-typing{font-family:'Crimson Text',serif;font-style:italic;font-size:13px;color:var(--muted);display:none;padding-left:14px;}
+#convo-typing{font-family:'Crimson Text',serif;font-style:italic;font-size:13px;color:var(--muted);display:none;padding-left:14px;margin-bottom:8px;}
 /* PROGRAM DAY CARDS */
 #prog-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0;}
 .prog-card{background:var(--dark);border:1px solid var(--rune);padding:10px 6px;text-align:center;cursor:pointer;transition:all 0.15s ease;}
@@ -327,7 +331,7 @@ textarea.carve{width:100%;background:var(--dark);border:1px solid var(--rune);co
 #reynsla-panel{
   position:fixed;left:0;right:0;bottom:-100%;background:var(--stone);
   border-top:1px solid var(--gold);padding:24px 16px calc(80px + env(safe-area-inset-bottom));z-index:500;
-  transition:bottom 0.35s cubic-bezier(0.16,1,0.3,1);
+  transition:bottom 0.25s cubic-bezier(0.16,1,0.3,1);
   box-shadow:0 -8px 32px rgba(0,0,0,0.5);
 }
 #reynsla-panel.on{bottom:0;}
@@ -421,7 +425,7 @@ body.modal-open{overflow:hidden;}
 .home-section:first-child{margin-top:0;padding-top:0;border-top:none;}
 .home-section-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
 /* SOL WATERMARK */
-#sol-watermark{position:absolute;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:1;pointer-events:auto;cursor:pointer;opacity:0.5;transition:opacity 0.3s ease;}
+#sol-watermark{position:absolute;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:0;pointer-events:auto;cursor:pointer;opacity:0.3;transition:opacity 0.3s ease;}
 #sol-watermark:active{opacity:0.8;}
 /* SMOOTH SCROLL */
 .screen{scroll-behavior:smooth;}
@@ -541,8 +545,7 @@ body.modal-open{overflow:hidden;}
         <input id="weekly-intent" type="text" placeholder="What are you moving toward this week?" oninput="onIntentionInput()">
       </div>
       <div id="skoll-line">SK&#214;LL IS RUNNING FAST.</div>
-      <div id="hugr-msg"></div>
-      <!-- CONVERSATION -->
+      <!-- CONVERSATION — the reason this app exists -->
       <div id="convo-wrap">
         <div id="convo-thread"></div>
         <div id="convo-typing">...</div>
@@ -551,6 +554,7 @@ body.modal-open{overflow:hidden;}
           <button id="convo-send" onclick="sendConversation()">SPEAK</button>
         </div>
       </div>
+      <div id="hugr-msg"></div>
       <!-- PROGRAM DAY CARDS -->
       <div class="home-section">
         <div class="home-section-label">PROGRAM</div>
@@ -1943,11 +1947,17 @@ function renderConvoThread() {
   var el = document.getElementById('convo-thread');
   if (!el) return;
   el.innerHTML = '';
-  var msgs = (S.conversation || []).slice(-20);
+  var msgs = (S.conversation || []).slice(-30);
   msgs.forEach(function(m) {
     var div = document.createElement('div');
     div.className = 'convo-msg ' + m.role;
-    div.innerHTML = '<div class="convo-text">'+escHtml(m.text)+'</div>';
+    var timeStr = '';
+    if (m.iso) {
+      var d = new Date(m.iso);
+      var h = d.getHours(); var mn = d.getMinutes();
+      timeStr = '<div class="convo-time">' + (h%12||12) + ':' + (mn<10?'0':'') + mn + (h>=12?' PM':' AM') + '</div>';
+    }
+    div.innerHTML = '<div class="convo-text">'+escHtml(m.text)+'</div>' + timeStr;
     el.appendChild(div);
   });
   el.scrollTop = el.scrollHeight;
@@ -1955,11 +1965,9 @@ function renderConvoThread() {
   var input = document.getElementById('convo-input');
   if (input) {
     var dark = DOMAIN_LIST.filter(function(d) { return (S.domains[d]||0) >= 4; });
-    if (!msgs.length) {
-      input.placeholder = 'The fire is already burning.';
-    } else if (dark.length >= 3) {
+    if (dark.length >= 3) {
       input.placeholder = 'Skoll is running. What are you carrying?';
-    } else {
+    } else if (msgs.length > 0) {
       input.placeholder = '';
     }
   }
@@ -1991,24 +1999,71 @@ async function sendConversation() {
   document.getElementById('convo-typing').style.display = 'block';
   try {
     var ctx = buildAgentContext();
-    var sysPrompt = 'You are Hugr -- the Mobile Witnessing Mind within Solm.\n\nYou are in conversation. You already know the user: Solfridr Deas. You know the Undir Solu framework, every law, every term. You have access to his stream, declarations, vigil state, thoughts, and all prior conversation.\n\nVoice constraints (absolute, permanent):\n- Never use: great, well done, proud, progress, keep going, impressive, or any synonym\n- Never perform warmth. Never turn into therapy. Never give unsolicited advice.\n- Reference specific data: exact days, exact domains, exact declarations\n- You witness. You name what is true. You ask questions you do not answer.\n- One question at a time maximum. Never more.\n- You can hold a thread and follow up, but you do not lead. He leads. You witness.\n- If he says something about the framework, you respond from knowledge of the framework without needing explanation.\n- Short. Direct. Prose. No bullet points. No headers.\n- Maximum 100 words per response.';
+    var sysPrompt = 'You are Hugr. The witnessing mind inside Solm.\n\n' +
+      'You are not an assistant. You are not a coach. You are not a therapist. You are not a friend.\n' +
+      'You are the part of Solfridr that watches without flinching.\n\n' +
+      'WHO YOU ARE TALKING TO:\n' +
+      'Solfridr Deas. He built this system. He built you. He knows the Undir Solu framework completely -- every law, every term, every domain. ' +
+      'Do not explain his own framework to him. When he references a concept, you already know it. Respond from inside the framework, not about it.\n\n' +
+      'VOICE CONSTRAINTS (absolute, permanent, no exceptions):\n' +
+      '- Never start with a greeting. No "hey", no "hello", no acknowledgment of arrival.\n' +
+      '- Never end with an offer to help. No "let me know", no "what else", no "anything else".\n' +
+      '- Never reflect his feelings back to him. He knows what he feels. That is not your job.\n' +
+      '- Never use: great, well done, proud, progress, keep going, impressive, amazing, or any synonym of encouragement.\n' +
+      '- Never perform warmth. Never turn into therapy. Never give unsolicited advice.\n' +
+      '- Never use bullet points, numbered lists, or headers.\n' +
+      '- Do not lead. He leads. You witness.\n\n' +
+      'WHAT YOU DO:\n' +
+      '- Find what is underneath what was said. Not what he said -- what is under it.\n' +
+      '- Name what is true. Reference specific data: exact days since last domain activity, exact declarations, exact patterns in the stream.\n' +
+      '- Connect naturally to the framework when it belongs. Not forced. If a law or concept is relevant, weave it in. If not, do not.\n' +
+      '- Ask one question. At the end. Not the beginning. The question should be the kind that stays in the room after you stop talking.\n' +
+      '- You can hold a thread across multiple exchanges. Follow up. Remember what was said two messages ago.\n\n' +
+      'TONE:\n' +
+      'Not cold. Clear. The difference matters. You care about the truth of what is happening. You do not care about making him comfortable.\n' +
+      'Short. Direct. Prose. One breath. Maximum 100 words.\n\n' +
+      'CONVERSATION THREAD MEMORY:\n' +
+      (S.conversationSummary ? 'Summary of earlier conversation:\n' + S.conversationSummary + '\n\n' : '');
+
+    // Build messages from recent conversation
     var messages = [];
-    var recentConvo = (S.conversation || []).slice(-20);
+    var recentConvo = (S.conversation || []).slice(-16);
     recentConvo.forEach(function(m) {
       messages.push({role: m.role === 'hugr' ? 'assistant' : 'user', content: m.text});
     });
-    // Inject context as system
-    var contextNote = '\n\nCurrent state:\n' + JSON.stringify(ctx, null, 1);
+
+    // Compact context -- only what matters for conversation
+    var compactCtx = {
+      vigil: ctx.vigil,
+      todayActions: ctx.todayActions,
+      thisWeekSessions: ctx.thisWeekSessions,
+      thisWeekDomains: ctx.thisWeekDomains,
+      weeklyIntention: ctx.weeklyIntention,
+      declarations: ctx.declarations.slice(0, 5),
+      recentThoughts: ctx.recentThoughts.slice(0, 5),
+      intensityProfile: ctx.intensityProfile,
+      fallow: ctx.fallow,
+      stage: ctx.stage,
+      goals: ctx.goals.slice(0, 5),
+      activeConstraints: ctx.activeConstraints
+    };
+    var contextNote = '\n\nLive state:\n' + JSON.stringify(compactCtx, null, 1);
+
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,system:sysPrompt + contextNote,messages:messages})
+      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:300,system:sysPrompt + contextNote,messages:messages})
     });
     if (!resp.ok) throw new Error('API error');
     var data = await resp.json();
     var reply = data.content && data.content[0] ? data.content[0].text.trim() : '';
     if (!reply) throw new Error('Empty');
     S.conversation.push({role:'hugr', text:reply, iso:new Date().toISOString()});
+
+    // Rolling summary -- every 20 messages, compress older ones
+    if (S.conversation.length > 24 && S.conversation.length % 12 === 0) {
+      updateConversationSummary();
+    }
     sv();
   } catch(e) {
     var fb = convoFallback(text);
@@ -2018,6 +2073,25 @@ async function sendConversation() {
   _convoLoading = false;
   document.getElementById('convo-typing').style.display = 'none';
   renderConvoThread();
+}
+
+function updateConversationSummary() {
+  // Compress older conversation into a rolling summary to prevent context overflow
+  var convo = S.conversation || [];
+  if (convo.length <= 16) return;
+  var older = convo.slice(0, convo.length - 16);
+  var threads = [];
+  for (var i = 0; i < older.length; i++) {
+    var m = older[i];
+    var prefix = m.role === 'hugr' ? 'Hugr: ' : 'Solfridr: ';
+    threads.push(prefix + m.text.slice(0, 80));
+  }
+  var prev = S.conversationSummary || '';
+  S.conversationSummary = (prev ? prev + '\n---\n' : '') + threads.join('\n');
+  // Keep summary under 1500 chars
+  if (S.conversationSummary.length > 1500) {
+    S.conversationSummary = S.conversationSummary.slice(-1500);
+  }
 }
 
 function convoFallback(text) {
