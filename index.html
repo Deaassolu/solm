@@ -755,6 +755,14 @@ body.modal-open{overflow:hidden;}
         <div class="home-section-label">RECORDS</div>
         <div id="records-content"></div>
       </div>
+      <!-- BACKUP WARNING -->
+      <div id="backup-warning" class="home-section" style="display:none;">
+        <div class="solm-card" style="border-color:var(--ember);">
+          <div style="font-family:Cinzel,serif;font-size:9px;letter-spacing:2px;color:var(--ember);margin-bottom:6px;">DATA NOT SYNCED</div>
+          <div style="font-family:Crimson Text,serif;font-size:13px;color:var(--dim);line-height:1.5;">Your data lives only in this browser. Set up Firebase in Settings to sync, or Export to save a backup.</div>
+          <button class="btn" style="font-size:8px;padding:6px 10px;margin-top:8px;" onclick="openSettings()">SETTINGS</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -775,6 +783,14 @@ body.modal-open{overflow:hidden;}
         </div>
         <!-- FREE SESSION -->
         <div id="panel-free" class="session-panel" style="display:none;">
+          <div style="margin-bottom:8px;">
+            <label style="font-family:Cinzel,serif;font-size:9px;letter-spacing:1px;color:var(--dim);display:block;margin-bottom:4px;">DOMAIN</label>
+            <select id="free-domain" style="background:var(--dark);border:1px solid var(--rune);color:var(--light);font-family:Crimson Text,serif;font-size:14px;padding:6px;width:100%;outline:none;">
+              <option value="body">Likami (Body)</option><option value="mind">Hugr (Mind)</option>
+              <option value="martial">Bardagi (Martial)</option><option value="craft">List (Craft)</option>
+              <option value="tongue">Tunga (Tongue)</option><option value="world">Heimr (World)</option>
+            </select>
+          </div>
           <div class="intensity-row">
             <button class="int-btn" onclick="setInt(this,'light')">LIGHT</button>
             <button class="int-btn" onclick="setInt(this,'solid')">SOLID</button>
@@ -1908,6 +1924,9 @@ function renderHome() {
   renderWeeklySummary();
   renderRecords();
   checkSkollCascade();
+  // Backup warning: show if no Firebase and >50 stream entries
+  var bw = document.getElementById('backup-warning');
+  if (bw) bw.style.display = (!_user && (S.stream||[]).length > 50) ? 'block' : 'none';
 }
 
 function renderVigilBars() {
@@ -2263,7 +2282,7 @@ async function sendConversation() {
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-opus-4-5',max_tokens:300,system:sysPrompt + contextNote,messages:messages})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,system:sysPrompt + contextNote,messages:messages})
     });
     if (!resp.ok) throw new Error('API error');
     var data = await resp.json();
@@ -2335,6 +2354,19 @@ function convoFallback(text) {
   }
   if (lower.indexOf('mandarin') >= 0 || lower.indexOf('language') >= 0 || lower.indexOf('chinese') >= 0) {
     return 'Tongue domain: ' + (S.domains.tongue||0) + ' days since last contact. Language regresses without it. Not judgment. Structure.';
+  }
+  // Training-aware fallbacks
+  var pbs = S.exercisePBs || {};
+  var pbKeys = Object.keys(pbs);
+  if (pbKeys.length > 0 && (lower.indexOf('train') >= 0 || lower.indexOf('strong') >= 0 || lower.indexOf('progress') >= 0 || lower.indexOf('lift') >= 0)) {
+    var trending = getTrendingExercises();
+    var improving = trending.filter(function(e){return e.trend==='improving';});
+    if (improving.length > 0) return improving.length + ' exercise' + (improving.length>1?'s':'') + ' trending up this week. ' + improving[0].name + ' leading.';
+    var plateauing = getPlateauingExercises();
+    if (plateauing.length > 0) return plateauing[0].name + ' has plateaued for ' + plateauing[0].sessionsSincePB + ' sessions. The constraint is somewhere.';
+  }
+  if (lower.indexOf('mark') >= 0) {
+    return (S.marks||0) + ' marks earned. Marks are the currency of sealed work.';
   }
   return 'The stream holds what you have sealed. What are you carrying that has not been sealed yet?';
 }
@@ -3083,7 +3115,8 @@ function freeSeal() {
   if (hasSets) {
     session = finalizeSession(_activeSessionId, 'free', 'Free Session', _freeInt);
   }
-  var entry = streamWrite('free',{domain:'body',intensity:_freeInt,duration:elapsed,note:note,xp:xp,threshold:_thresholdFlags.free,sessionId:_activeSessionId});
+  var freeDom = (document.getElementById('free-domain')||{}).value || 'body';
+  var entry = streamWrite('free',{domain:freeDom,intensity:_freeInt,duration:elapsed,note:note,xp:xp,threshold:_thresholdFlags.free,sessionId:_activeSessionId});
   gainXP(xp); sv();
   document.getElementById('free-start').style.display='inline-block';
   document.getElementById('free-seal').style.display='none';
@@ -4601,7 +4634,11 @@ function renderRuneContent() {
 }
 
 // ─── PATTERN DETECTION ────────────────────────────────────────────────────────
+var _lastPatternRun = 0;
 function runPatternDetection() {
+  var now = Date.now();
+  if (now - _lastPatternRun < 60000) return; // throttle to once per minute
+  _lastPatternRun = now;
   if (!S.events) S.events=[];
   var now=new Date();
   // Skoll cascade
@@ -4932,7 +4969,7 @@ window.addEventListener('DOMContentLoaded',function(){
     });
     caches.keys().then(function(names) {
       names.forEach(function(name) {
-        if (name !== 'solm-v9') caches.delete(name);
+        if (name !== 'solm-v10') caches.delete(name);
       });
     });
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.warn('SW registration failed:', e); });
