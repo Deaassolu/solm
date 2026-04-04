@@ -35,9 +35,8 @@ body{
 #opening{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding:var(--sai-top) var(--sai-right) var(--sai-bottom) var(--sai-left);}
 #opening.out{pointer-events:none;}
 #sol-svg{width:140px;height:140px;cursor:pointer;}
-#sol-arc{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:439.8;stroke-dashoffset:439.8;transition:stroke-dashoffset 1.2s ease-out;}
-.sol-ray{stroke:var(--gold);stroke-width:2.5;stroke-linecap:round;opacity:0;transition:opacity 0.3s ease;}
-.sol-spark{fill:var(--gold);opacity:0;}
+#sol-arc{stroke-dasharray:520;stroke-dashoffset:520;transition:stroke-dashoffset 1.4s ease-out;}
+.sol-ray{opacity:0;transition:opacity 0.3s ease;}
 #opening-name{font-family:'Cinzel',serif;font-size:18px;letter-spacing:8px;color:var(--light);opacity:0;text-align:center;}
 #opening-name span{display:inline-block;opacity:0;transform:translateY(4px);}
 #opening-verse{font-family:'Crimson Text',serif;font-style:italic;font-size:16px;color:var(--dim);text-align:center;line-height:1.8;opacity:0;}
@@ -75,27 +74,47 @@ h1,h2,h3,.cinzel{font-family:'Cinzel',serif;}
 .btn-hold::after{content:'';position:absolute;inset:0;background:var(--gold);opacity:0;transform:scale(0);transition:none;pointer-events:none;}
 .btn-hold.filling::after{animation:goldFill 0.15s ease-out forwards;}
 @keyframes goldFill{from{opacity:0;transform:scale(0);}to{opacity:0.15;transform:scale(1);}}
+/* HEADER BAR */
+#solm-header{display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 16px 8px;}
+#solm-header-left{display:flex;align-items:center;gap:8px;cursor:pointer;}
+#solm-header-left svg{width:18px;height:18px;}
+#solm-header-title{font-family:'Cinzel',serif;font-size:13px;letter-spacing:4px;color:var(--dim);}
+#solm-header-right{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);cursor:pointer;}
 /* XP BAR */
-#xp-bar-wrap{padding:calc(12px + env(safe-area-inset-top)) 16px 16px;position:relative;background:linear-gradient(180deg,rgba(201,168,76,0.02) 0%,transparent 100%);}
-#stage-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--dim);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+#xp-bar-wrap{padding:8px 16px 12px;position:relative;}
+#stage-label{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;color:var(--dim);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
 #prestige-badge{font-family:'Cinzel',serif;font-size:9px;color:var(--gold-hot);display:none;}
-#xp-track{height:3px;background:var(--rune);position:relative;}
-#xp-fill{height:100%;background:var(--ember);width:0%;transition:width 0.6s cubic-bezier(0.22,1,0.36,1);box-shadow:0 0 8px rgba(232,98,58,0.4);}
-#xp-text{font-family:'Crimson Text',serif;font-size:12px;color:var(--dim);margin-top:4px;}
+#xp-track{height:3px;background:var(--rune);position:relative;border-radius:2px;}
+#xp-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));width:0%;transition:width 0.6s cubic-bezier(0.22,1,0.36,1);border-radius:2px;}
+#xp-text{font-family:'Cinzel',serif;font-size:10px;color:var(--dim);margin-top:4px;display:flex;justify-content:space-between;letter-spacing:1px;}
+#xp-pct{color:var(--dim);}
+#xp-total{font-family:'Cinzel',serif;font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:2px;}
 /* VIGIL */
-#vigil-wrap{padding:0 16px 16px;}
-.vigil-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.vigil-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;width:56px;color:var(--dim);}
-.vigil-bar-track{flex:1;height:4px;background:var(--rune);}
-.vigil-bar-fill{height:100%;transition:width 0.4s cubic-bezier(0.22,1,0.36,1);}
-.vigil-days{font-family:'Cinzel',serif;font-size:9px;color:var(--dim);width:28px;text-align:right;}
+#vigil-section{padding:0 16px 12px;}
+#vigil-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+#vigil-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);}
+#vigil-fading{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;color:var(--gold);}
+#skoll-line-vigil{font-family:'Crimson Text',serif;font-style:italic;font-size:13px;color:var(--ember);margin-bottom:8px;}
+#vigil-wrap{padding:0;}
+.vigil-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.vigil-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;width:60px;color:var(--dim);}
+.vigil-bar-track{flex:1;height:3px;background:var(--rune);border-radius:2px;}
+.vigil-bar-fill{height:100%;transition:width 0.4s cubic-bezier(0.22,1,0.36,1);border-radius:2px;}
+.vigil-wolf{font-size:12px;width:20px;text-align:center;opacity:0.5;}
 /* HOME */
-#home-wrap{padding:16px;}
-#weekly-intent-wrap{margin-bottom:16px;padding-left:0;border-left:3px solid transparent;}
-#weekly-intent-wrap.set{border-left-color:var(--gold);}
+#home-wrap{padding:0 16px 16px;}
+/* CARD STYLE */
+.solm-card{background:var(--stone);border:1px solid var(--rune);border-radius:12px;padding:16px;margin-bottom:12px;}
+.solm-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.solm-card-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);}
+.solm-card-icon{color:var(--dim);font-size:14px;cursor:pointer;}
+/* WEEKLY INTENT */
+#weekly-intent-wrap{margin-bottom:0;}
+#weekly-intent-wrap.set{border-color:var(--gold-dim);}
 #weekly-intent-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:6px;}
-#weekly-intent{width:100%;background:transparent;border:none;border-bottom:1px solid var(--rune);color:var(--light);font-family:'Crimson Text',serif;font-size:15px;padding:4px 0;outline:none;}
-#hugr-msg{font-family:'Crimson Text',serif;font-style:italic;font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 16px;padding:8px 12px;border-left:2px solid var(--rune);opacity:0;min-height:0;transition:opacity 0.6s ease;}
+#weekly-intent{width:100%;background:transparent;border:none;color:var(--light);font-family:'Crimson Text',serif;font-size:15px;padding:4px 0;outline:none;}
+#weekly-intent::placeholder{color:var(--muted);font-style:italic;}
+#hugr-msg{font-family:'Crimson Text',serif;font-style:italic;font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 12px;padding:8px 12px;border-left:2px solid var(--rune);opacity:0;min-height:0;transition:opacity 0.6s ease;}
 #hugr-msg:empty{display:none;}
 #skoll-line{font-family:'Cinzel',serif;font-size:11px;color:var(--ember);letter-spacing:2px;margin:8px 0;display:none;}
 #fallow-indicator{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--green);padding:8px 16px;display:none;border-bottom:1px solid var(--rune);}
@@ -118,18 +137,20 @@ h1,h2,h3,.cinzel{font-family:'Cinzel',serif;}
 #convo-input:focus ~ #convo-send,#convo-send.ready{border-color:var(--gold-dim);color:var(--gold-dim);}
 #convo-typing{font-family:'Crimson Text',serif;font-style:italic;font-size:13px;color:var(--muted);display:none;padding-left:14px;margin-bottom:8px;}
 /* PROGRAM DAY CARDS */
-#prog-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0;}
-.prog-card{background:var(--dark);border:1px solid var(--rune);padding:10px 6px;text-align:center;cursor:pointer;transition:all 0.15s ease;}
-.prog-card:active{transform:scale(0.95);}
-.prog-card-name{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;margin-bottom:4px;}
-.prog-card-num{font-family:'Cinzel',serif;font-size:14px;color:var(--dim);}
-.prog-card.done{border-color:var(--gold);}
-.prog-card.done .prog-card-num{color:var(--gold);}
+#prog-cards{margin:0;}
+.prog-day-card{background:var(--stone);border:1px solid var(--rune);border-radius:12px;padding:16px;cursor:pointer;transition:all 0.15s ease;}
+.prog-day-card:active{transform:scale(0.98);}
+.prog-day-card-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.prog-day-card-name{font-family:'Cinzel',serif;font-size:14px;letter-spacing:1px;color:var(--light);}
+.prog-day-card-sub{font-family:'Crimson Text',serif;font-size:13px;color:var(--dim);margin-top:2px;}
+.prog-day-card-count{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:var(--gold);}
+.prog-day-card-quote{font-family:'Crimson Text',serif;font-style:italic;font-size:14px;color:var(--dim);line-height:1.6;margin-top:10px;}
+.prog-day-card.done{border-color:var(--gold-dim);}
 /* STATS GRID */
-#stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0;}
-.stat-item{text-align:center;padding:8px 4px;background:var(--dark);border:1px solid var(--rune);}
-.stat-val{font-family:'Cinzel',serif;font-size:18px;color:var(--gold);}
-.stat-label{font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;color:var(--dim);margin-top:2px;}
+#stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:0;}
+.stat-item{text-align:center;padding:12px 4px;}
+.stat-val{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);}
+.stat-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--dim);margin-top:4px;}
 /* DOMAIN XP BARS */
 #dom-xp-wrap{margin:16px 0;}
 .dom-xp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
@@ -155,10 +176,10 @@ h1,h2,h3,.cinzel{font-family:'Cinzel',serif;}
 .ms-badge-icon{font-size:16px;margin-bottom:2px;}
 .ms-badge-name{font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;color:var(--dim);}
 /* WEEKLY SUMMARY */
-#weekly-summary{margin:16px 0;padding:12px;background:var(--dark);border:1px solid var(--rune);}
-#weekly-summary .ws-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:6px;}
-#weekly-summary .ws-row{display:flex;gap:16px;font-family:'Cinzel',serif;font-size:10px;color:var(--dim);}
-#weekly-summary .ws-row span{color:var(--gold);}
+#weekly-summary{margin:0;padding:0;}
+#weekly-summary .ws-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+#weekly-summary .ws-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;text-align:center;font-family:'Cinzel',serif;font-size:10px;color:var(--dim);}
+#weekly-summary .ws-row span{color:var(--gold);font-size:18px;display:block;margin-bottom:4px;}
 /* RECORDS */
 #records-wrap{margin:16px 0;}
 #records-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:6px;}
@@ -483,11 +504,11 @@ button,select,input,textarea,.nav-btn,.stype-btn,.int-btn,.set-sq,.dom-chip,.pro
 .thought-item{-webkit-touch-callout:none;-webkit-user-select:none;}
 body.modal-open{overflow:hidden;}
 /* SECTION DIVIDER */
-.home-section{margin-top:24px;padding-top:16px;border-top:1px solid rgba(58,52,40,0.3);}
-.home-section:first-child{margin-top:0;padding-top:0;border-top:none;}
-.home-section-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
+.home-section{margin-top:12px;}
+.home-section:first-child{margin-top:0;}
+.home-section-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px;}
 /* SOL WATERMARK */
-#sol-watermark{position:absolute;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:0;pointer-events:auto;cursor:pointer;opacity:0.3;transition:opacity 0.3s ease;}
+#sol-watermark{display:none;}
 #sol-watermark:active{opacity:0.8;}
 /* SMOOTH SCROLL */
 .screen{scroll-behavior:smooth;}
@@ -505,16 +526,20 @@ body.modal-open{overflow:hidden;}
     <defs>
       <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
-    <circle id="sol-arc" cx="100" cy="100" r="70" filter="url(#glow)"/>
-    <line class="sol-ray" id="r0" x1="100" y1="100" x2="100" y2="20" filter="url(#glow)"/>
-    <line class="sol-ray" id="r1" x1="100" y1="100" x2="157" y2="43" filter="url(#glow)"/>
-    <line class="sol-ray" id="r2" x1="100" y1="100" x2="180" y2="100" filter="url(#glow)"/>
-    <line class="sol-ray" id="r3" x1="100" y1="100" x2="157" y2="157" filter="url(#glow)"/>
-    <line class="sol-ray" id="r4" x1="100" y1="100" x2="100" y2="180" filter="url(#glow)"/>
-    <line class="sol-ray" id="r5" x1="100" y1="100" x2="43" y2="157" filter="url(#glow)"/>
-    <line class="sol-ray" id="r6" x1="100" y1="100" x2="20" y2="100" filter="url(#glow)"/>
-    <line class="sol-ray" id="r7" x1="100" y1="100" x2="43" y2="43" filter="url(#glow)"/>
-    <circle cx="100" cy="100" r="5" fill="#C9A84C" opacity="0" id="sol-center"/>
+    <!-- Overlapping circle ring -->
+    <path id="sol-arc" d="M 106 22 A 80 80 0 1 0 94 22 A 82 82 0 0 0 106 22" fill="none" stroke="#C9A84C" stroke-width="3" stroke-linecap="round" filter="url(#glow)"/>
+    <!-- Half-sun center dot -->
+    <circle cx="100" cy="115" r="4" fill="#C9A84C" opacity="0" id="sol-center"/>
+    <!-- Rays curving upward -->
+    <path class="sol-ray" id="r0" d="M 100 111 L 100 60" stroke="#C9A84C" stroke-width="2.2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r1" d="M 100 111 Q 97 85 86 66" stroke="#C9A84C" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r2" d="M 100 111 Q 103 85 114 66" stroke="#C9A84C" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r3" d="M 100 111 Q 91 92 68 78" stroke="#C9A84C" stroke-width="1.8" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r4" d="M 100 111 Q 109 92 132 78" stroke="#C9A84C" stroke-width="1.8" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r5" d="M 100 111 Q 86 100 54 94" stroke="#C9A84C" stroke-width="1.5" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r6" d="M 100 111 Q 114 100 146 94" stroke="#C9A84C" stroke-width="1.5" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r7" d="M 100 111 Q 84 108 46 112" stroke="#C9A84C" stroke-width="1.2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    <path class="sol-ray" id="r8" d="M 100 111 Q 116 108 154 112" stroke="#C9A84C" stroke-width="1.2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
   </svg>
   <div id="opening-name">
     <span>S</span><span>O</span><span>L</span><span>F</span><span>R</span><span>I</span>
@@ -610,28 +635,48 @@ body.modal-open{overflow:hidden;}
 <!-- APP -->
 <div id="app">
   <div id="sync-status"></div>
-  <button id="rune-btn" onclick="openRune()">&#5765;</button>
-  <button id="settings-gear" onclick="openSettings()">&#9881;</button>
+  <button id="rune-btn" onclick="openRune()" style="display:none;">&#5765;</button>
+  <button id="settings-gear" onclick="openSettings()" style="display:none;">&#9881;</button>
   <div id="fallow-indicator"></div>
 
   <!-- HOME SCREEN -->
   <div class="screen active" id="screen-home">
-    <div id="sol-watermark" onclick="openRune()"><svg viewBox="0 0 200 200" width="48" height="48"><circle cx="100" cy="100" r="70" fill="none" stroke="var(--rune)" stroke-width="2" opacity="0.4"/><circle cx="100" cy="100" r="5" fill="var(--rune)" opacity="0.4"/></svg></div>
+    <!-- HEADER -->
+    <div id="solm-header">
+      <div id="solm-header-left" onclick="openRune()">
+        <svg viewBox="0 0 200 200" width="18" height="18"><path d="M 106 22 A 80 80 0 1 0 94 22 A 82 82 0 0 0 106 22" fill="none" stroke="var(--gold-dim)" stroke-width="5"/><circle cx="100" cy="115" r="5" fill="var(--gold-dim)"/><path d="M 100 111 L 100 68" stroke="var(--gold-dim)" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M 100 111 Q 96 88 84 72" stroke="var(--gold-dim)" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M 100 111 Q 104 88 116 72" stroke="var(--gold-dim)" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M 100 111 Q 90 96 66 84" stroke="var(--gold-dim)" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M 100 111 Q 110 96 134 84" stroke="var(--gold-dim)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <span id="solm-header-title">SOLM</span>
+      </div>
+      <div id="solm-header-right" onclick="openSettings()">UNDIR S&#211;LU</div>
+    </div>
     <div id="xp-bar-wrap">
       <div id="stage-label">
         FR&#205;&#208;R-STIG <span id="stage-num">0</span>
         <span id="prestige-badge"></span>
       </div>
       <div id="xp-track"><div id="xp-fill"></div></div>
-      <div id="xp-text"><span id="xp-cur">0</span> / <span id="xp-next">500</span> LJ&#211;S</div>
+      <div id="xp-text"><span><span id="xp-cur">0</span> / <span id="xp-next">500</span> XP</span><span id="xp-pct">0%</span></div>
+      <div id="xp-total"><span id="xp-total-num">0</span> TOTAL XP</div>
     </div>
-    <div id="vigil-wrap"></div>
-    <div id="home-wrap">
-      <div id="weekly-intent-wrap">
-        <div id="weekly-intent-label">WEEKLY INTENTION</div>
-        <input id="weekly-intent" type="text" placeholder="What are you moving toward this week?" oninput="onIntentionInput()">
+    <!-- VIGIL -->
+    <div id="vigil-section">
+      <div id="vigil-header">
+        <span id="vigil-title">CAELITH DOMAIN VIGIL</span>
+        <span id="vigil-fading"></span>
       </div>
+      <div id="skoll-line-vigil"></div>
+      <div id="vigil-wrap"></div>
+    </div>
+    <div id="home-wrap">
       <div id="skoll-line">SK&#214;LL IS RUNNING FAST.</div>
+      <!-- WEEKLY INTENTION CARD -->
+      <div class="solm-card" id="weekly-intent-wrap">
+        <div class="solm-card-header">
+          <span class="solm-card-title">WEEKLY INTENTION</span>
+          <span class="solm-card-icon">&#9998;</span>
+        </div>
+        <input id="weekly-intent" type="text" placeholder="Set this week's intention..." oninput="onIntentionInput()">
+      </div>
       <!-- CONVERSATION — the reason this app exists -->
       <div id="convo-wrap">
         <div id="convo-thread"></div>
@@ -642,9 +687,8 @@ body.modal-open{overflow:hidden;}
         </div>
       </div>
       <div id="hugr-msg"></div>
-      <!-- PROGRAM DAY CARDS -->
+      <!-- PROGRAM DAY CARD -->
       <div class="home-section">
-        <div class="home-section-label">PROGRAM</div>
         <div id="prog-cards"></div>
       </div>
       <!-- TODAY -->
@@ -677,8 +721,8 @@ body.modal-open{overflow:hidden;}
       </div>
       <!-- WEEKLY SUMMARY -->
       <div class="home-section">
-        <div id="weekly-summary">
-          <div class="ws-label">THIS WEEK</div>
+        <div class="solm-card" id="weekly-summary">
+          <div class="ws-label"><span>WEEKLY SUMMARY</span><span style="font-size:16px;color:var(--gold-dim);">&#10022;</span></div>
           <div class="ws-row" id="ws-content"></div>
         </div>
       </div>
@@ -1180,38 +1224,40 @@ function generateIconDataURL(size) {
   c.width = size; c.height = size;
   var ctx = c.getContext('2d');
   var cx = size / 2, cy = size / 2;
-  // Background
   ctx.fillStyle = '#0b0a07';
   ctx.fillRect(0, 0, size, size);
-  // Circle arc
-  var r = size * 0.35;
+  // Outer circle ring
+  var r = size * 0.38;
   ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.arc(cx, cy, r, 0, Math.PI * 2.08);
   ctx.strokeStyle = '#C9A84C';
-  ctx.lineWidth = size * 0.02;
-  ctx.stroke();
-  // 8 rays
-  var rayLen = size * 0.15;
-  var rayStart = r + size * 0.04;
-  ctx.strokeStyle = '#C9A84C';
-  ctx.lineWidth = size * 0.015;
+  ctx.lineWidth = size * 0.018;
   ctx.lineCap = 'round';
-  for (var i = 0; i < 8; i++) {
-    var angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
-    var x1 = cx + Math.cos(angle) * rayStart;
-    var y1 = cy + Math.sin(angle) * rayStart;
-    var x2 = cx + Math.cos(angle) * (rayStart + rayLen);
-    var y2 = cy + Math.sin(angle) * (rayStart + rayLen);
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  }
-  // Center dot
+  ctx.stroke();
+  // Sun center dot
+  var sunY = cy + size * 0.06;
   ctx.beginPath();
-  ctx.arc(cx, cy, size * 0.03, 0, Math.PI * 2);
+  ctx.arc(cx, sunY, size * 0.025, 0, Math.PI * 2);
   ctx.fillStyle = '#C9A84C';
   ctx.fill();
+  // 9 curved rays fanning upward
+  var angles = [-80, -60, -40, -20, 0, 20, 40, 60, 80];
+  var lengths = [0.08, 0.12, 0.16, 0.2, 0.24, 0.2, 0.16, 0.12, 0.08];
+  ctx.strokeStyle = '#C9A84C';
+  for (var i = 0; i < angles.length; i++) {
+    var a = angles[i] * Math.PI / 180;
+    var len = lengths[i] * size;
+    var lw = (1.5 - Math.abs(angles[i]) / 80 * 0.8) * size / 100;
+    ctx.lineWidth = Math.max(lw, size * 0.008);
+    var ex = cx + Math.sin(a) * len;
+    var ey = sunY - Math.cos(a) * len;
+    var cpx = cx + Math.sin(a) * len * 0.4 + Math.sin(a) * size * 0.02;
+    var cpy = sunY - Math.cos(a) * len * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, sunY - size * 0.02);
+    ctx.quadraticCurveTo(cpx, cpy, ex, ey);
+    ctx.stroke();
+  }
   return c.toDataURL('image/png');
 }
 
@@ -1735,9 +1781,11 @@ function renderXPBar() {
   var pct = Math.min(100,(into/LVL_XP)*100);
   var fill = document.getElementById('xp-fill');
   if (fill) { fill.style.transition='none'; fill.style.width=pct+'%'; }
-  var sn = document.getElementById('stage-num'); if (sn) sn.textContent=stage;
+  var sn = document.getElementById('stage-num'); if (sn) sn.textContent='I II III IV V VI VII VIII IX X'.split(' ')[stage]||stage;
   var xc = document.getElementById('xp-cur'); if (xc) xc.textContent=into;
-  var xn = document.getElementById('xp-next'); if (xn) xn.textContent=LVL_XP-into;
+  var xn = document.getElementById('xp-next'); if (xn) xn.textContent=LVL_XP;
+  var xpPct = document.getElementById('xp-pct'); if (xpPct) xpPct.textContent=Math.round(pct)+'%';
+  var xpTotal = document.getElementById('xp-total-num'); if (xpTotal) xpTotal.textContent=S.xp||0;
   var pb = document.getElementById('prestige-badge');
   if (pb) {
     if ((S.prestige||0) > 0) { pb.style.display='inline'; pb.textContent='P'+S.prestige; }
@@ -1836,20 +1884,30 @@ function renderVigilBars() {
   var wrap = document.getElementById('vigil-wrap');
   if (!wrap) return;
   wrap.innerHTML = '';
+  var fadingCount = 0;
   DOMAIN_LIST.forEach(function(d) {
     var days = S.domains[d] || 0;
+    if (days >= 4) fadingCount++;
     var max = 14;
     var pct = Math.min(100, (days/max)*100);
     var color = DOMAIN_COLORS[d];
     var darkPct = Math.min(1, days/7);
-    var wolf = days >= 4 ? ' \uD83D\uDC3A' : '';
+    var isFading = days >= 4;
     var r = document.createElement('div');
     r.className = 'vigil-row';
-    r.innerHTML = '<span class="vigil-label">'+DOMAIN_NAMES[d]+'</span>' +
-      '<div class="vigil-bar-track"><div class="vigil-bar-fill" style="width:'+pct+'%;background:'+color+';opacity:'+(1-darkPct*0.7)+'"></div></div>' +
-      '<span class="vigil-days">'+days+'d'+wolf+'</span>';
+    r.innerHTML = '<span class="vigil-label" style="color:' + (isFading ? color : 'var(--dim)') + ';">' + DOMAIN_NAMES[d] + '</span>' +
+      '<div class="vigil-bar-track"><div class="vigil-bar-fill" style="width:' + pct + '%;background:' + color + ';opacity:' + (1-darkPct*0.7) + '"></div></div>' +
+      '<span class="vigil-wolf">' + (isFading ? '\uD83D\uDC3A' : '') + '</span>';
     wrap.appendChild(r);
   });
+  // Update header
+  var fadingEl = document.getElementById('vigil-fading');
+  if (fadingEl) fadingEl.textContent = fadingCount > 0 ? fadingCount + ' FADING' : '';
+  var skollVigil = document.getElementById('skoll-line-vigil');
+  if (skollVigil) {
+    skollVigil.textContent = fadingCount >= 3 ? 'Sköll is running fast.' : '';
+    skollVigil.style.display = fadingCount >= 3 ? 'block' : 'none';
+  }
 }
 
 function renderHugrMsg() {
@@ -1862,22 +1920,40 @@ function renderHugrMsg() {
   } else { el.style.opacity = '0'; el.textContent = ''; }
 }
 
+var PROG_QUOTES = {
+  1: 'Force without clarity collapses on itself. Find the form first.',
+  2: 'The ground holds you. Train what holds the ground.',
+  3: 'Pull toward what resists. That is where the strength lives.',
+  4: 'Power is not volume. It is intent compressed into a single moment.'
+};
+
 function renderProgCards() {
   var wrap = document.getElementById('prog-cards');
   if (!wrap) return;
   wrap.innerHTML = '';
   var today = new Date().toDateString();
+  // Find the next unfinished day, or show day 1
+  var nextDay = 1;
   for (var d = 1; d <= 4; d++) {
-    var info = PROG_DAYS[d];
     var doneToday = (S.stream||[]).some(function(e) { return e.type==='program' && e.day===d && new Date(e.iso).toDateString()===today; });
-    var card = document.createElement('div');
-    card.className = 'prog-card' + (doneToday ? ' done' : '');
-    card.style.borderColor = doneToday ? info.color : '';
-    card.innerHTML = '<div class="prog-card-name" style="color:'+info.color+';">'+info.name+'</div><div class="prog-card-num">'+'I II III IV'.split(' ')[d-1]+'</div>';
-    card.setAttribute('data-day', d);
-    card.onclick = (function(day) { return function() { navTo('train'); selectSType('program'); selectDay(day); }; })(d);
-    wrap.appendChild(card);
+    if (!doneToday) { nextDay = d; break; }
+    if (d === 4) nextDay = d; // all done
   }
+  var daysCompleted = 0;
+  for (var d2 = 1; d2 <= 4; d2++) {
+    var done = (S.stream||[]).some(function(e) { return e.type==='program' && e.day===d2 && new Date(e.iso).toDateString()===today; });
+    if (done) daysCompleted++;
+  }
+  var info = PROG_DAYS[nextDay];
+  var isDone = daysCompleted >= 4;
+  var card = document.createElement('div');
+  card.className = 'prog-day-card' + (isDone ? ' done' : '');
+  card.innerHTML = '<div class="prog-day-card-top"><div><div class="prog-day-card-name" style="color:' + info.color + ';">' + info.name.charAt(0) + info.name.slice(1).toLowerCase() + '</div>' +
+    '<div class="prog-day-card-sub">' + info.sub + '</div></div>' +
+    '<div class="prog-day-card-count">DAY ' + daysCompleted + '/4</div></div>' +
+    '<div class="prog-day-card-quote">"' + (PROG_QUOTES[nextDay]||'') + '"</div>';
+  card.onclick = function() { navTo('train'); selectSType('program'); selectDay(nextDay); };
+  wrap.appendChild(card);
 }
 
 function renderTodayList() {
@@ -4603,12 +4679,12 @@ function runOpeningSequence() {
   var center=document.getElementById('sol-center');
   setTimeout(function(){arc.style.strokeDashoffset='0';},200);
   setTimeout(function(){center.style.opacity='1';center.style.transition='opacity 0.3s';},1300);
-  for (var i=0;i<8;i++){
+  for (var i=0;i<9;i++){
     (function(idx){
       setTimeout(function(){
         var ray=document.getElementById('r'+idx);
-        if(ray){ray.style.opacity='0.7';ray.style.transition='opacity 0.3s';}
-      },1400+idx*80);
+        if(ray){ray.style.opacity='0.8';ray.style.transition='opacity 0.3s';}
+      },1400+idx*70);
     })(i);
   }
   setTimeout(function(){
@@ -4673,7 +4749,7 @@ window.addEventListener('DOMContentLoaded',function(){
     });
     caches.keys().then(function(names) {
       names.forEach(function(name) {
-        if (name !== 'solm-v5') caches.delete(name);
+        if (name !== 'solm-v6') caches.delete(name);
       });
     });
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.warn('SW registration failed:', e); });
