@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOLM - CLEARING</title>
+<style>body{background:#0b0a07;color:#C9A84C;font-family:monospace;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;}
+#log{font-size:14px;line-height:2;}</style></head>
+<body><div id="log">CLEARING OLD CACHES...</div>
+<script>
+var log = document.getElementById('log');
+function msg(t) { log.innerHTML += '<br>' + t; }
+async function nuke() {
+  // 1. Unregister all service workers
+  if ('serviceWorker' in navigator) {
+    var regs = await navigator.serviceWorker.getRegistrations();
+    for (var i = 0; i < regs.length; i++) {
+      await regs[i].unregister();
+      msg('Killed service worker ' + (i+1));
+    }
+  }
+  // 2. Delete all caches
+  if ('caches' in window) {
+    var names = await caches.keys();
+    for (var j = 0; j < names.length; j++) {
+      await caches.delete(names[j]);
+      msg('Deleted cache: ' + names[j]);
+    }
+  }
+  msg('DONE. Redirecting in 2s...');
+  setTimeout(function() {
+    window.location.href = './index.html?t=' + Date.now();
+  }, 2000);
+}
+nuke();
+</script></body></html>

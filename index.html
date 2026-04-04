@@ -4658,8 +4658,24 @@ window.addEventListener('DOMContentLoaded',function(){
   if (S.firebaseConfig) { try { initFirebase(S.firebaseConfig); } catch(e) {} }
   // PWA setup (icons, manifest, splash screens)
   try { setupPWA(); } catch(e) {}
-  // Register service worker for offline capability
+  // Service worker: nuke old caches, register fresh
   if ('serviceWorker' in navigator) {
+    // Unregister all old service workers and clear all caches first
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      var hadOld = false;
+      regs.forEach(function(reg) {
+        var swUrl = reg.active && reg.active.scriptURL || '';
+        // If the SW doesn't match current version, nuke it
+        if (swUrl.indexOf('sw.js') >= 0) {
+          reg.update();
+        }
+      });
+    });
+    caches.keys().then(function(names) {
+      names.forEach(function(name) {
+        if (name !== 'solm-v5') caches.delete(name);
+      });
+    });
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.warn('SW registration failed:', e); });
   }
   // Pre-cache fonts and CDN assets
