@@ -1,4 +1,4 @@
-var CACHE_NAME = 'solm-v10';
+var CACHE_NAME = 'solm-v11';
 var URLS_TO_CACHE = [
   'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',

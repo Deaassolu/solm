@@ -2380,7 +2380,8 @@ async function hugrObserve() {
   if (!S.apiKey) { hugrFallback(); return; }
   var ctx = buildAgentContext();
   var sysPrompt = 'You are Hugr -- the Mobile Witnessing Mind within Solm.\n\nYou do not encourage. You do not praise. You do not affirm.\nYou witness. You speak from the data you are given. You name what is true.\nYou ask questions you do not answer. You leave them open.\nYou speak once and then you are silent for at least 3 days.\nYou are not here to make the user feel good. You are here to make the user see clearly.\nOne paragraph maximum. Two only if the second is a question.\nNever use: great, well done, proud, progress, keep going, or any synonym.\nReference specific data: exact days, exact domains, exact declarations.\nNo bullet points. No headers. Prose only. One breath.\nMaximum 120 words total.';
-  var userPrompt = 'Witness the following and speak once.\n\n'+JSON.stringify(ctx,null,2)+'\n\nSpeak from this data. Name what is true. Ask one question if you have one. Then be silent.';
+  var convoNote = S.conversationSummary ? '\n\nRecent conversation threads with Solfridr:\n' + S.conversationSummary.slice(-500) : '';
+  var userPrompt = 'Witness the following and speak once.\n\n'+JSON.stringify(ctx,null,2)+convoNote+'\n\nSpeak from this data. Name what is true. Ask one question if you have one. Then be silent.';
   try {
     var resp = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
@@ -2967,6 +2968,23 @@ function selectSType(type) {
   if (type==='program') { renderProgDaySel(); renderProgramDay(_progDay); }
   if (type==='iso') { renderIsoPBs(); }
   if (type==='progress') { renderProgressView(); }
+  if (type==='free') {
+    // Restore draft if mid-session page reload happened
+    if (restoreFreeSessionDraft()) {
+      _freeRunning = true;
+      document.getElementById('free-start').style.display='none';
+      document.getElementById('free-seal').style.display='inline-block';
+      document.getElementById('free-add-exercise-wrap').style.display='flex';
+      renderFreeExercises();
+      // Restart timer display from saved start
+      if (_sessionStart) {
+        _sessionTimer = setInterval(function(){
+          var elapsed = Math.floor((Date.now()-_sessionStart)/1000);
+          updateTimerDisplay(elapsed);
+        },1000);
+      }
+    }
+  }
 }
 
 function setInt(btn, val, context) {
@@ -3001,6 +3019,7 @@ function freeStart() {
     _activeSessionId = uid();
     _activeSessionStart = new Date();
   }
+  saveFreeSessionDraft();
   wakeLockAcquire();
   document.getElementById('free-start').style.display = 'none';
   document.getElementById('free-seal').style.display = 'inline-block';
@@ -3017,8 +3036,32 @@ function addFreeExercise() {
   if (!name) return;
   input.value = '';
   _freeExercises.push({name: name, id: uid()});
+  saveFreeSessionDraft();
   renderFreeExercises();
   input.focus();
+}
+
+function saveFreeSessionDraft() {
+  S._freeSessionDraft = {exercises: _freeExercises, sessionId: _activeSessionId, start: _sessionStart, int: _freeInt};
+  svNow();
+}
+
+function restoreFreeSessionDraft() {
+  var d = S._freeSessionDraft;
+  if (!d || !d.sessionId) return false;
+  // Check if session has sets in setLog — only restore if data exists
+  var hasSets = (S.setLog||[]).some(function(s){return s.sessionId===d.sessionId;});
+  if (!d.exercises.length && !hasSets) { clearFreeSessionDraft(); return false; }
+  _freeExercises = d.exercises || [];
+  _activeSessionId = d.sessionId;
+  _sessionStart = d.start;
+  _freeInt = d.int;
+  return true;
+}
+
+function clearFreeSessionDraft() {
+  delete S._freeSessionDraft;
+  svNow();
 }
 
 function renderFreeExercises() {
@@ -3097,6 +3140,7 @@ function undoFreeSet(exId, setIdx) {
 
 function removeFreeExercise(exId) {
   _freeExercises = _freeExercises.filter(function(e){return e.id!==exId;});
+  saveFreeSessionDraft();
   renderFreeExercises();
 }
 
@@ -3128,6 +3172,7 @@ function freeSeal() {
   _freeExercises = [];
   _freeInt=null; _thresholdFlags.free=false;
   _activeSessionId=null; _activeSessionStart=null;
+  clearFreeSessionDraft();
   var ttBox = document.getElementById('tt-free'); if (ttBox) { ttBox.classList.remove('on'); ttBox.textContent=''; }
   document.querySelectorAll('#panel-free .int-btn').forEach(function(b){b.classList.remove('selected');});
   if (session) {
@@ -3185,6 +3230,12 @@ function renderProgramDay(d) {
   }
   el.innerHTML = '';
   var exArr = dayData.exercises||[];
+  // Reconstruct completedSets from setLog so state survives page reloads
+  exArr.forEach(function(ex) {
+    if (ex.retired) return;
+    var slug = exerciseSlug(ex.name);
+    ex.completedSets = (S.setLog||[]).filter(function(s){return s.sessionId===_activeSessionId&&s.exerciseId===slug;}).length;
+  });
   exArr.forEach(function(ex) {
     if (ex.retired) return;
     var slug = exerciseSlug(ex.name);
@@ -3672,7 +3723,11 @@ function martialSeal() {
   var elapsed=Math.floor((Date.now()-_martialStart)/1000);
   var note=document.getElementById('martial-note').value.trim();
   var xp=XP_TABLE[_martialInt]||50;
-  var entry=streamWrite('martial',{domain:'martial',intensity:_martialInt,duration:elapsed,note:note,xp:xp,threshold:_thresholdFlags.martial});
+  // Wire into training tracker — duration-based session
+  var mSessionId = uid();
+  logSet('Martial Training', 'martial', mSessionId, null, elapsed, null, null, _martialInt);
+  finalizeSession(mSessionId, 'martial', 'Martial Training', _martialInt);
+  var entry=streamWrite('martial',{domain:'martial',intensity:_martialInt,duration:elapsed,note:note,xp:xp,threshold:_thresholdFlags.martial,sessionId:mSessionId});
   gainXP(xp); sv();
   document.getElementById('martial-start').style.display='inline-block';
   document.getElementById('martial-seal').style.display='none';
@@ -3703,7 +3758,12 @@ function langSeal() {
   var note=document.getElementById('lang-note').value.trim();
   var lang=(document.getElementById('lang-select')||{}).value||'mandarin';
   var xp=XP_TABLE[_langInt]||30;
-  var entry=streamWrite('language',{domain:'tongue',intensity:_langInt,duration:elapsed,note:note,language:lang,xp:xp});
+  // Wire into training tracker — duration-based session
+  var lSessionId = uid();
+  var langName = lang.charAt(0).toUpperCase() + lang.slice(1) + ' Study';
+  logSet(langName, 'language', lSessionId, null, elapsed, null, null, _langInt);
+  finalizeSession(lSessionId, 'language', langName, _langInt);
+  var entry=streamWrite('language',{domain:'tongue',intensity:_langInt,duration:elapsed,note:note,language:lang,xp:xp,sessionId:lSessionId});
   gainXP(xp); sv();
   document.getElementById('lang-start').style.display='inline-block';
   document.getElementById('lang-seal').style.display='none';
@@ -4969,7 +5029,7 @@ window.addEventListener('DOMContentLoaded',function(){
     });
     caches.keys().then(function(names) {
       names.forEach(function(name) {
-        if (name !== 'solm-v10') caches.delete(name);
+        if (name !== 'solm-v11') caches.delete(name);
       });
     });
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.warn('SW registration failed:', e); });
