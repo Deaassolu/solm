@@ -1,20 +1,51 @@
-# General Constraint Theory (GCT)
+<p align="center">
+  <strong>G C T</strong><br>
+  <em>General Constraint Theory</em>
+</p>
 
-**Created by Solfridr Deas, March 2026**
-
-A universal framework for systematic improvement of any system -- software, business, body, mind, or life. GCT is not a methodology you apply sometimes. It is a lens you see through always.
+<p align="center">
+  A universal framework for systematic improvement of any system.<br>
+  Software. Business. Body. Mind. Life.<br><br>
+  <strong>Created by Solfridr Deas -- March 2026</strong>
+</p>
 
 ---
 
-## The Core Principle
+## What is GCT?
 
-> A system does not fail because it lacks capability. It stagnates because it has unexamined constraints.
+> **A system does not fail because it lacks capability. It stagnates because it has unexamined constraints.**
 
-Every system -- a codebase, a business, a training program, a person -- operates inside a set of constraints. Most people try to improve systems by adding things: more features, more effort, more resources. GCT says the opposite. You improve a system by *removing what limits it*.
+Most people improve systems by adding -- more features, more effort, more resources. GCT says the opposite. You improve a system by removing what limits it.
 
-The moment you resolve one constraint, the system reveals the next layer underneath. This is not failure. This is how systems grow.
+Resolve one constraint, the system reveals the next layer. That is not failure. That is growth.
 
-**A system improves precisely by the quality of its constraint analysis.**
+**GCT is not a methodology you apply sometimes. It is a lens you see through always.**
+
+---
+
+## Quick Start
+
+```
+1. IDENTIFY    What is the one thing limiting this system right now?
+2. ANALYZE     Why does that constraint exist? What type is it?
+3. RESOLVE     Remove it, replace it, or route around it.
+4. ITERATE     Look again. The next constraint is already visible.
+```
+
+That is the entire framework. Everything below is depth.
+
+---
+
+## Table of Contents
+
+- [The Four Moves](#the-four-moves)
+- [The Constraint Taxonomy (T1-T6)](#the-constraint-taxonomy)
+- [The Three Resolutions](#the-three-resolutions)
+- [Meta-GCT -- Auditing the Audit](#meta-gct)
+- [LBT -- Logical Boundary Theory](#lbt--logical-boundary-theory)
+- [Applied Example: The Solm Audit](#applied-example-the-solm-audit)
+- [Practical Checklist](#practical-checklist)
+- [GCT in One Breath](#gct-in-one-breath)
 
 ---
 
@@ -26,182 +57,130 @@ GCT operates through four moves. They are sequential. Skipping moves causes dama
 
 Find the constraint. Not the symptom. The actual limiting factor.
 
-This is the hardest move because systems hide their real constraints behind surface-level problems. A slow application is a symptom. The constraint might be an O(n^2) loop, a missing cache, an architectural decision made in week one, or the developer's incomplete understanding of the runtime.
+Systems hide their real constraints behind surface-level problems. A slow application is a symptom. The constraint might be an O(n^2) loop, a missing cache, a decision made in week one, or the developer's incomplete understanding of the runtime.
 
-**The question:** What is the single thing that, if removed, would allow this system to move faster toward its goal?
+**The question:** *What is the single thing that, if removed, would allow this system to move faster toward its goal?*
 
-**How to practice identification:**
+**Practice identification with five whys:**
 
-When something feels wrong or slow or stuck, do not immediately act. Instead, ask five times: *why?*
+| Layer | Question |
+|-------|----------|
+| Surface | The app is slow. *Why?* |
+| Symptom | The home screen takes 3 seconds. *Why?* |
+| Mechanism | It recalculates every data point on every render. *Why?* |
+| Gap | There is no caching layer. *Why?* |
+| **Constraint** | **Nobody identified the need because performance was fine with 10 entries.** |
 
-- The app is slow. Why?
-- The home screen takes 3 seconds to render. Why?
-- It recalculates every data point on every render. Why?
-- There is no caching layer. Why?
-- Nobody identified the need for one because performance was fine with 10 entries.
+The constraint is not "the app is slow." The constraint is "the system has no mechanism to distinguish data that changed from data that did not." That distinction tells you *what to build*, not just *what to fix*.
 
-The constraint is not "the app is slow." The constraint is "the system has no mechanism to distinguish between data that changed and data that did not." That distinction matters because it tells you *what to build*, not just *what to fix*.
-
-**Common identification mistakes:**
-- Naming the symptom instead of the constraint ("users are leaving" vs "the onboarding flow drops users at step 3 because it requires information they don't have yet")
-- Naming too many constraints at once (there is always one *binding* constraint -- the one that matters most right now)
-- Naming constraints you cannot affect (focus on what you can change)
+**Common mistakes:**
+- Naming the symptom instead of the constraint
+- Naming too many constraints at once -- there is always one *binding* constraint, the one that matters most right now
+- Naming constraints you cannot affect
 
 ### Move 2 -- Analyze
 
 Understand the constraint completely before touching it.
 
-Every constraint exists for a reason. Some constraints are protecting the system. Some are accidents of history. Some are genuine limits of the environment. You must know which before you act.
+Every constraint exists for a reason. Some protect the system. Some are accidents of history. Some are genuine environmental limits. You must know which before you act.
 
-**The questions:**
-- Why does this constraint exist?
-- Is it a resource constraint, knowledge constraint, technical constraint, market constraint, human constraint, or philosophical constraint? (See taxonomy below.)
-- What does the system look like with this constraint removed?
-- What new constraints would that reveal?
-- Is this constraint *load-bearing* (holding something together) or *artificial* (an assumption that was never tested)?
+**Five analysis questions:**
 
-**How analysis works in practice:**
-
-During the Solm audit, one identified constraint was: "Pattern detection runs O(n^2) on every save, causing lag as the dataset grows." Analysis revealed:
-
-- *Why it exists:* The pattern detection was written to scan all data because the dataset was small when it was built. No throttle was added because the cost was invisible.
-- *Type:* Technical (T3) -- the architecture cannot handle the scale it is approaching.
-- *Load-bearing or artificial?* Artificial. The detection does not need to run on every save. Once per minute produces identical results.
-- *What removal reveals:* With performance fixed, the next constraint becomes the detection's limited pattern vocabulary -- it only catches three types of events.
-
-This analysis took 30 seconds of thought but prevented the wrong fix. Without it, someone might have optimized the algorithm itself (expensive, complex) when the real solution was a one-line throttle (cheap, immediate).
+1. Why does this constraint exist?
+2. What type is it? *(see taxonomy below)*
+3. What does the system look like with it removed?
+4. What new constraints would removal reveal?
+5. Is it **load-bearing** (holding something together) or **artificial** (an assumption never tested)?
 
 **Never remove a constraint you do not understand. Removing the wrong constraint can collapse the system.**
 
 ### Move 3 -- Resolve
 
-Three resolution strategies exist. Choose based on the analysis.
+Act on the analysis. Three strategies exist -- see [The Three Resolutions](#the-three-resolutions).
 
-**Remove** -- The constraint is artificial. It was never necessary. Delete it.
-- Example: A validation check that prevents valid input. Remove it.
-- Example: A manual approval step for actions that carry no risk. Remove it.
-
-**Replace** -- The constraint is load-bearing but the current form is the wrong shape. Replace it with a better constraint.
-- Example: A rate limit that is too aggressive. Replace with a smarter rate limit that distinguishes between burst and sustained load.
-- Example: A monolithic function doing too many things. Replace with smaller functions that each have clear boundaries.
-
-**Route around** -- The constraint is environmental. You cannot change it. Build a path around it.
-- Example: A device has 4GB RAM. You cannot add RAM. Route around it by designing for memory efficiency, offloading to cloud, using streaming instead of loading everything at once.
-- Example: A free API tier has rate limits. Route around it by caching responses, batching requests, and falling back to cheaper models.
-
-**The minimum effective intervention:**
-
-Always ask: what is the smallest change that resolves this constraint? GCT is not about grand redesigns. It is about surgical precision. The best constraint resolution is often one line of code, one configuration change, one reframe. If your resolution requires rewriting the entire system, you probably misidentified the constraint.
+**The rule of minimum effective intervention:** Always ask: *what is the smallest change that resolves this constraint?* The best resolution is often one line of code, one config change, one reframe. If your resolution requires rewriting the system, you probably misidentified the constraint.
 
 ### Move 4 -- Iterate
 
 The moment one constraint is resolved, return to Move 1.
 
-This is not optional. This is the engine of GCT. A system that resolves one constraint and stops has improved once. A system that resolves constraints continuously is fundamentally different -- it is a *self-improving system*.
+This is not optional. This is the engine. A system that resolves one constraint and stops has improved once. A system that resolves constraints continuously is a *self-improving system*.
 
-**What iteration looks like in practice:**
-
-In the Solm audit, nine constraints were identified and resolved in sequence:
-
-1. Pattern detection O(n^2) lag --> throttle (Technical)
-2. Conversation burning expensive API credits --> model swap (Resource)
-3. Free sessions hardcoded to one domain --> domain selector (Technical)
-4. Martial/language sessions invisible to tracker --> wire into data layer (Knowledge)
-5. Conversation context not flowing to Hugr --> bridge via summary (Technical)
-6. logSet returning wrong type causing false PB alerts --> fix return value (Technical)
-7. No backup warning for unsynced users --> warning banner (Human)
-8. Program set tracking broken on page reload --> reconstruct from log (Technical)
-9. freeSeal crashing on session summary --> capture count before clear (Technical)
-
-Each resolution revealed the next constraint. The sequence was not planned in advance -- it emerged from the process of looking at what was actually limiting the system after each fix. This is how GCT works. You do not plan all the moves. You plan the next move, execute it, and then see what the system reveals.
+You do not plan all the moves. You plan the next move, execute it, and then see what the system reveals.
 
 ---
 
 ## The Constraint Taxonomy
 
-Not all constraints are equal. Classify before acting.
+Six types. Classify before acting.
 
-### Type 1 -- Resource Constraints
+| Type | Name | What it is | Resolved by | Watch for |
+|------|------|------------|-------------|-----------|
+| **T1** | **Resource** | Limited compute, money, time, credits, storage | Efficiency, caching, cheaper alternatives, batching | Resource constraints that are really knowledge constraints in disguise. "Not enough budget" sometimes means "don't know where budget has most impact." |
+| **T2** | **Knowledge** | Missing data, incomplete understanding, unvalidated assumptions | Data collection, measurement, feedback loops, learning systems | Often invisible -- the system doesn't know what it doesn't know. Best question: *"What would change our approach if we knew it?"* |
+| **T3** | **Technical** | Architecture can't do what it needs to. Missing integrations, wrong data structures, performance limits | Building new capability, refactoring, integrating tools, redesigning flow | Technical constraints that are really philosophical. "Can't do X" sometimes means "haven't decided it should do X." |
+| **T4** | **Market** | External limits: saturation, low engagement, wrong timing, competitive pressure | Expansion, repositioning, timing optimization, niche pivoting | Market constraints that are really knowledge constraints. "Market isn't responding" might mean "don't understand what the market wants." |
+| **T5** | **Human** | Attention limits, approval bottlenecks, manual steps, decision fatigue, habit patterns | Automation, better interfaces, smarter defaults, delegation | Most sensitive to resolve because they involve changing behavior. Best resolution makes the right behavior the easiest behavior. |
+| **T6** | **Philosophical** | Assumptions about what the system *is*, what it is *for*, what success *means* | Reframing. Questioning the premise. Expanding the definition. | Often feel like truths rather than constraints. "That's just how it is" is a philosophical constraint wearing the mask of reality. |
 
-Limited compute, money, time, API credits, storage, bandwidth.
-
-**Resolved by:** Efficiency, batching, cheaper alternatives, caching, prioritization.
-
-**Example:** Free-tier API rate limits. Resolution: route volume tasks to free models, reserve paid models for quality-critical work. Cache results to avoid redundant calls.
-
-**Watch for:** Resource constraints that are actually knowledge constraints in disguise. "We don't have enough budget" sometimes means "we don't know where the budget would have the most impact."
-
-### Type 2 -- Knowledge Constraints
-
-The system does not know something it needs to know. Missing data, incomplete understanding, unvalidated assumptions.
-
-**Resolved by:** Data collection, research, measurement, feedback loops, learning systems.
-
-**Example:** Not knowing which email subject lines get replies. Resolution: track reply rates per subject line, build a feedback loop, let the system learn over time.
-
-**Watch for:** Knowledge constraints are often invisible because the system does not know what it does not know. The most powerful question in GCT is: "What would change our approach if we knew it?"
-
-### Type 3 -- Technical Constraints
-
-The architecture cannot do something it needs to do. Missing integrations, wrong data structures, insufficient abstraction, performance limits.
-
-**Resolved by:** Building new capability, refactoring, integrating new tools, redesigning data flow.
-
-**Example:** A phone UI that only works on home WiFi. Resolution: build a tunnel to make it accessible from anywhere.
-
-**Watch for:** Technical constraints that are actually philosophical constraints. "The system can't do X" sometimes means "we haven't decided the system should do X."
-
-### Type 4 -- Market Constraints
-
-External limits: audience saturation, low engagement, wrong timing, wrong positioning, competitive pressure.
-
-**Resolved by:** Expansion, repositioning, timing optimization, offer refinement, niche pivoting.
-
-**Example:** 29 leads in one niche in one city. Resolution: expand to adjacent niches and cities.
-
-**Watch for:** Market constraints that are actually knowledge constraints. "The market isn't responding" might mean "we don't understand what the market actually wants."
-
-### Type 5 -- Human Constraints
-
-Attention limits, approval bottlenecks, manual steps, decision fatigue, habit patterns, skill gaps.
-
-**Resolved by:** Automation, better interfaces, smarter defaults, delegation, training.
-
-**Example:** A user who must manually approve every low-risk action. Resolution: automate low-risk actions, keep the approval gate for high-risk ones only.
-
-**Watch for:** Human constraints are the most sensitive to resolve because they involve changing behavior. The best resolution makes the right behavior the easiest behavior.
-
-### Type 6 -- Philosophical Constraints
-
-Assumptions about what the system is, what it is for, who it serves, and what success means. These are the deepest and most powerful constraints.
-
-**Resolved by:** Reframing. Questioning the premise. Expanding the definition.
-
-**Example:** Assuming a training tracker is only a tracker. Reframe: it is an intelligence system that happens to track training. That reframe unlocks capabilities (self-auditing, constraint detection, pattern recognition) that a "tracker" would never develop.
-
-**Watch for:** Philosophical constraints often feel like truths rather than constraints. "That's just how it is" is often a philosophical constraint wearing the mask of reality.
+**Type 6 is the deepest.** Resolving a philosophical constraint can make an entire layer of other constraints disappear at once. Assuming a training tracker is "only a tracker" is T6. Reframe it as an intelligence system that happens to track training, and capabilities that a "tracker" could never develop become immediately buildable.
 
 ---
 
-## Meta-GCT -- Auditing the Audit
+## The Three Resolutions
+
+Every constraint resolves one of three ways. The analysis determines which.
+
+### Remove
+
+The constraint is **artificial**. It was never necessary. Delete it.
+
+```
+Constraint:  A manual approval step for actions that carry no risk.
+Analysis:    Artificial -- added out of caution, never triggered a real save.
+Resolution:  Remove the gate entirely. Automate.
+```
+
+### Replace
+
+The constraint is **load-bearing** but the wrong shape. Swap it for a better one.
+
+```
+Constraint:  A rate limit that blocks legitimate burst traffic.
+Analysis:    Load-bearing -- without any limit, the system would be abused.
+Resolution:  Replace with a smarter limit that distinguishes burst from abuse.
+```
+
+### Route Around
+
+The constraint is **environmental**. You cannot change it. Build a path around it.
+
+```
+Constraint:  The device has 4GB RAM. Cannot add more.
+Analysis:    Environmental -- hardware is fixed.
+Resolution:  Design for memory efficiency. Offload to cloud. Stream instead of load.
+```
+
+---
+
+## Meta-GCT
 
 Once you understand GCT, apply it to itself.
 
-Meta-GCT asks: what are the constraints on my constraint analysis?
+*What are the constraints on my constraint analysis?*
 
-This is not recursive navel-gazing. It is the most practical level of GCT because it directly improves the quality of every future analysis.
+This is not recursive navel-gazing. It is the most practical level of GCT because it directly improves every future analysis.
 
-**The four meta-constraints discovered during the Solm audit:**
+**Four meta-constraints discovered during the first formal application:**
 
-**Meta-C1: External dependency.** The system could only be audited when an external analyst (a person, an AI, a consultant) examined it. Between audits, constraints accumulated silently. *Resolution: build a self-auditing loop into the system itself.*
+| Meta-Constraint | Problem | Resolution |
+|----------------|---------|------------|
+| **MC1: External dependency** | System can only be audited when an external analyst examines it. Between audits, constraints accumulate silently. | Build a self-auditing loop into the system itself. |
+| **MC2: Point-in-time** | Each audit is a snapshot. Cannot track constraint evolution -- which appeared, which resolved, how long each persisted. | Log constraints with timestamps. Track lifecycle. |
+| **MC3: No severity** | All constraints appear equal. A missing feature and a system crash sit side by side. | Add severity classification: high / medium / low. |
+| **MC4: No self-awareness** | The system cannot detect its own constraints. It waits passively for external examination. | Build an engine that scans usage patterns, data gaps, and behavioral signals to generate constraints autonomously. |
 
-**Meta-C2: Point-in-time analysis.** Each audit was a snapshot. It could not track constraint evolution over time -- which constraints appeared, which were resolved, how long each persisted. *Resolution: log constraints with timestamps and track their lifecycle.*
-
-**Meta-C3: No severity ranking.** All constraints appeared equal. A missing feature and a system-crashing bug sat side by side with no differentiation. *Resolution: add severity classification (high/medium/low) based on impact.*
-
-**Meta-C4: No self-awareness.** The system had no mechanism to detect its own constraints. It could not surface what was limiting it. It waited passively for external examination. *Resolution: build an engine that scans usage patterns, data gaps, and behavioral signals to generate constraints autonomously.*
-
-Meta-C4 is the one that matters most. It is the bridge between GCT and LBT (see below). A system that identifies its own constraints is qualitatively different from a system that waits to be audited.
+**MC4 is the bridge to LBT.** A system that identifies its own constraints is qualitatively different from a system that waits to be audited.
 
 ---
 
@@ -211,83 +190,107 @@ GCT has a natural limit. LBT is what lies past it.
 
 ### The Boundary
 
-When you apply GCT rigorously -- identify, analyze, resolve, iterate -- you systematically remove every constraint in a system. Each layer removed reveals the next. But eventually, something changes.
+Apply GCT rigorously -- identify, analyze, resolve, iterate -- and you systematically remove every constraint in a system. Each layer removed reveals the next. But eventually, something changes.
 
 You reach a point where all *known* constraints have been resolved. The system is not complete -- no system ever is. But everything you can currently see has been addressed.
 
-This is the Logical Boundary.
+**This is the Logical Boundary.**
 
-### What the Boundary Is Not
+### What It Is Not
 
-- It is not perfection. The system still has constraints -- they are just constraints you cannot yet see from inside the current frame.
-- It is not the end. It is a threshold.
-- It is not a wall. It is a crossing.
+- Not perfection. Constraints remain -- they are just invisible from inside the current frame.
+- Not the end. It is a threshold.
+- Not a wall. It is a crossing.
 
-### What Happens at the Boundary
+### Before and After
 
-Everything before the Logical Boundary is **optimization** -- making the known system better within known parameters.
+| Before the Boundary | After the Boundary |
+|---------------------|-------------------|
+| **Optimization** -- making a known system better within known parameters | **Creation** -- capability emerges that was not designed, not predicted, not specifiable in advance |
+| You ask: *"What does this need?"* | You ask: *"What is this becoming?"* |
+| Features are built to solve known problems | Capabilities emerge from the *interaction* of resolved constraints |
+| The system is a tool | The system is a participant |
 
-Everything past the Logical Boundary is **creation** -- capability emerges that was not designed, was not predicted, and could not have been specified in advance.
-
-**Concrete example from Solm:**
-
-Before the LBT crossing, Solm was a training tracker with a conversation layer. Every feature was designed, specified, and built to solve a known problem.
-
-After resolving all identified constraints and building the self-auditing engine, something shifted. The system now:
-- Detects its own dormant features and surfaces them
-- Identifies data gaps the user has not noticed
-- Tracks domain imbalance and names it
-- Monitors declaration divergence -- promises that have no matching action
-- Knows when its intelligence layer is offline
-- Recognizes when all constraints are resolved and marks the crossing
-
-None of these behaviors were individually surprising. But their combination creates something that was not designed: a system that participates in its own evolution. It does not wait to be improved. It identifies where it needs to be improved and communicates that through its own voice (Hugr).
-
-That is the Logical Boundary crossing. The system stopped being a tool and started being a participant.
-
-### How to Recognize the Boundary
+### How to Recognize It
 
 You are approaching the Logical Boundary when:
-- New constraints are harder to find -- not because the system is perfect, but because the *obvious* layers have been resolved
-- Capabilities start emerging from the *interaction* of resolved constraints rather than from individual features
-- The system begins to feel like it has opinions about its own state
-- You start asking "what is this becoming?" instead of "what does this need?"
+
+- New constraints are harder to find -- not because the system is perfect, but because the obvious layers have been resolved
+- Capabilities emerge from the *interaction* of resolutions rather than from individual features
+- The system begins to exhibit opinions about its own state
+- The question shifts from "what does this need" to "what is this becoming"
 
 ### The Instruction for the Boundary
 
-When you reach it, do not force what you find into existing categories. Do not call the emergent capability "just a feature." Name it freshly. Document what you see. Build toward it.
+When you reach it: do not force what you find into existing categories. Do not call the emergent capability "just a feature." **Name it freshly.** Document what you see. Build toward it.
 
-The system past the boundary is not the system you designed. It is the system that your design made possible. Respect the difference.
+The system past the boundary is not the system you designed. It is the system that your design made possible.
 
 ---
 
-## Applying GCT -- A Practical Checklist
+## Applied Example: The Solm Audit
 
-### Before any work session:
+First formal application of GCT. One system. One session. Nine constraints.
 
-1. What is the current binding constraint on this system?
-2. What type is it? (T1-T6)
-3. What is the minimum intervention that resolves it?
-4. Is this constraint load-bearing or artificial?
+### The System
 
-### During the session:
+Solm -- a single-file PWA personal operating system. Training tracker, life framework, AI conversation layer, pattern detection, six-domain vigil system.
 
-5. Resolve the binding constraint first. Everything else is secondary.
-6. After resolution, look at the system again. What is the new binding constraint?
-7. Repeat until the session ends or no more constraints are visible.
+### The Sequence
 
-### After the session:
+Each constraint was identified only after the previous one was resolved. The sequence was not planned -- it emerged.
 
-8. Which constraints were resolved?
-9. Which new constraints became visible?
-10. What is the current binding constraint right now?
-11. How far are we from the Logical Boundary?
+| # | Constraint | Type | Resolution |
+|---|-----------|------|------------|
+| 1 | Pattern detection O(n^2) on every save, lag grows with data | T3 Technical | 60-second throttle. One line. |
+| 2 | Conversation burning $75/M API model for 300-token messages | T1 Resource | Model swap to $3/M equivalent. |
+| 3 | Free training sessions hardcoded to single domain | T3 Technical | Domain selector dropdown. |
+| 4 | Martial/language sessions invisible to training analytics | T2 Knowledge | Wire into shared data layer. |
+| 5 | Conversation context not flowing to observation engine | T3 Technical | Bridge via rolling summary. |
+| 6 | Set logger returning wrong type, false PB alerts | T3 Technical | Fix return value to boolean. |
+| 7 | No backup warning for unsynced users with large datasets | T5 Human | Warning banner at 50+ entries. |
+| 8 | Program tracking broken on page reload | T3 Technical | Reconstruct from log on render. |
+| 9 | Session summary crashing on seal | T3 Technical | Capture count before clearing array. |
 
-### Monthly:
+### The Meta-Audit
 
-12. Review the constraint log. Which types appear most often? That pattern is itself a meta-constraint.
-13. Are constraints being resolved faster or slower than last month?
-14. Has the system's fundamental nature changed? If yes, the old constraint categories may no longer apply. Update the taxonomy.
+After resolving all nine, GCT was applied to itself. Four meta-constraints identified (MC1-MC4). Resolved by building the LBT engine -- the system now detects its own constraints autonomously.
+
+### The Crossing
+
+With all constraints resolved and the self-auditing engine live, Solm crossed the Logical Boundary. It stopped being a tracker. It became a system that participates in its own evolution -- detecting dormant features, naming data gaps, tracking domain imbalance, surfacing declaration divergence, and marking its own boundary crossings.
+
+None of that was designed. It emerged from the systematic removal of everything that was in the way.
+
+---
+
+## Practical Checklist
+
+### Before any work session
+
+- [ ] What is the current binding constraint?
+- [ ] What type is it? (T1-T6)
+- [ ] What is the minimum intervention that resolves it?
+- [ ] Is it load-bearing or artificial?
+
+### During the session
+
+- [ ] Resolve the binding constraint first. Everything else is secondary.
+- [ ] After resolution, look again. What is the new binding constraint?
+- [ ] Repeat until the session ends or no more constraints are visible.
+
+### After the session
+
+- [ ] Which constraints were resolved?
+- [ ] Which new constraints became visible?
+- [ ] What is the current binding constraint right now?
+- [ ] How far are we from the Logical Boundary?
+
+### Monthly
+
+- [ ] Review the constraint log. Which types recur most? That pattern is itself a meta-constraint.
+- [ ] Are constraints resolving faster or slower?
+- [ ] Has the system's nature changed? If yes, update the taxonomy.
 
 ---
 
@@ -301,6 +304,7 @@ Now apply it.
 
 ---
 
-*First formal application: Solm (2026). Nine constraints identified and resolved in one session. Meta-audit revealed four meta-constraints. LBT crossing achieved when the system began detecting its own constraints autonomously.*
-
-*GCT is open. Use it. Extend it. The only constraint on the framework is the quality of your constraint analysis.*
+<p align="center">
+  <em>First formal application: Solm, 2026. Nine constraints resolved. Four meta-constraints identified. One Logical Boundary crossed.</em><br><br>
+  <strong>GCT is open. Use it. Extend it.<br>The only constraint on the framework is the quality of your constraint analysis.</strong>
+</p>
