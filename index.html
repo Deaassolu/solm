@@ -2071,12 +2071,19 @@ function renderWeeklySummary() {
   var weekStream = (S.stream||[]).filter(function(e) { return new Date(e.iso) >= weekStart; });
   var sessions = weekStream.filter(function(e) { return ['free','program','iso','martial','language'].indexOf(e.type) >= 0; }).length;
   var xp = weekStream.reduce(function(a,e) { return a + (e.xp||0); }, 0);
-  var domCounts = {};
-  weekStream.forEach(function(e) { if (e.domain) domCounts[e.domain] = (domCounts[e.domain]||0) + 1; });
-  var topDom = '';
-  var topCount = 0;
-  Object.keys(domCounts).forEach(function(d) { if (domCounts[d] > topCount) { topDom = d; topCount = domCounts[d]; } });
-  el.innerHTML = '<span>'+sessions+'</span> sessions &nbsp; <span>'+xp+'</span> ljos' + (topDom ? ' &nbsp; top: <span>'+DOMAIN_NAMES[topDom]+'</span>' : '');
+  // Calculate streak -- consecutive days with at least one session
+  var streak = 0;
+  var checkDate = new Date(now);
+  checkDate.setHours(0,0,0,0);
+  while (true) {
+    var dateStr = checkDate.toDateString();
+    var hasActivity = (S.stream||[]).some(function(e) {
+      return ['free','program','iso','martial','language'].indexOf(e.type) >= 0 && new Date(e.iso).toDateString() === dateStr;
+    });
+    if (hasActivity) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
+    else break;
+  }
+  el.innerHTML = '<div><span>'+xp+'</span>LJ\u00D3S</div><div><span>'+sessions+'</span>SESSIONS</div><div><span>'+streak+'</span>STREAK</div>';
 }
 
 function renderRecords() {
@@ -2689,16 +2696,19 @@ function updateExercisePB(slug, name, setRecord) {
   if (pb.allSets.length > 50) pb.allSets = pb.allSets.slice(-50);
   // Check rep PB
   if (setRecord.reps && (!pb.bestSet || setRecord.reps > pb.bestSet)) {
+    var prevBest = pb.bestSet;
     pb.bestSet = setRecord.reps;
     pb.bestSetDate = setRecord.iso;
     earnMarks(3, 'pb', name + ' -- ' + setRecord.reps + ' reps');
-    return true; // is PB
+    checkThresholdMilestone(name, setRecord.reps, null);
+    return true;
   }
   // Check duration PB
   if (setRecord.duration && (!pb.bestDuration || setRecord.duration > pb.bestDuration)) {
     pb.bestDuration = setRecord.duration;
     pb.bestDurationDate = setRecord.iso;
     earnMarks(3, 'pb', name + ' -- ' + setRecord.duration + 's');
+    checkThresholdMilestone(name, null, setRecord.duration);
     return true;
   }
   return false;
@@ -2850,6 +2860,31 @@ function checkWeeklyMarks() {
       return m.reason === 'all4' && new Date(m.iso) >= weekStart;
     });
     if (!alreadyAwarded) earnMarks(15, 'all4', 'All 4 program days this week');
+  }
+}
+
+function checkThresholdMilestone(exerciseName, reps, duration) {
+  var slug = exerciseSlug(exerciseName);
+  var pb = (S.exercisePBs||{})[slug];
+  if (!pb) return;
+  // Check if this is a notable threshold (round numbers, first time at a level)
+  var val = reps || duration;
+  var unit = reps ? 'reps' : 's';
+  if (!val) return;
+  // Thresholds at: 10, 15, 20, 25, 30, 45, 60, 90, 120 etc
+  var thresholds = reps ? [10,15,20,25,30,40,50] : [30,45,60,90,120,180,300];
+  for (var i = 0; i < thresholds.length; i++) {
+    var t = thresholds[i];
+    if (val >= t) {
+      // Check if previous best was below this threshold
+      var prevBest = reps ? (pb.bestSet === val ? 0 : pb.bestSet) : (pb.bestDuration === val ? 0 : pb.bestDuration);
+      // Only if we just crossed this threshold
+      if (prevBest !== null && prevBest < t && val >= t) {
+        var text = exerciseName + ' threshold: ' + t + (reps ? '+ reps' : 's') + ' first achieved.';
+        addTimelineEntry(text, 'threshold');
+        break;
+      }
+    }
   }
 }
 
@@ -3427,9 +3462,16 @@ function isoSeal() {
   var isPB = !S.isoPBs[name] || elapsed > S.isoPBs[name];
   if (isPB) S.isoPBs[name]=elapsed;
   var xp = XP_TABLE.iso||30;
-  var entry = streamWrite('iso',{domain:'body',intensity:_isoInt,holdName:name,duration:elapsed,isPB:isPB,xp:xp});
+  // Write to training tracker -- duration-based set
+  var isoSessionId = uid();
+  logSet(name, null, isoSessionId, null, elapsed, null, null, _isoInt);
+  finalizeSession(isoSessionId, null, name, _isoInt);
+  var entry = streamWrite('iso',{domain:'body',intensity:_isoInt,holdName:name,duration:elapsed,isPB:isPB,xp:xp,sessionId:isoSessionId});
   gainXP(xp); sv();
-  if (isPB) showToast('NEW PB -- '+name);
+  if (isPB) {
+    showToast('NEW PB -- '+name);
+    checkThresholdMilestone(name, null, elapsed);
+  }
   document.getElementById('iso-start-btn').style.display='inline-block';
   document.getElementById('iso-seal-btn').style.display='none';
   document.getElementById('iso-timer-display').textContent='0:00';
@@ -4749,7 +4791,7 @@ window.addEventListener('DOMContentLoaded',function(){
     });
     caches.keys().then(function(names) {
       names.forEach(function(name) {
-        if (name !== 'solm-v6') caches.delete(name);
+        if (name !== 'solm-v7') caches.delete(name);
       });
     });
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.warn('SW registration failed:', e); });
