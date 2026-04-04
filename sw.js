@@ -1,7 +1,5 @@
-var CACHE_NAME = 'solm-v4';
+var CACHE_NAME = 'solm-v5';
 var URLS_TO_CACHE = [
-  './',
-  './index.html',
   'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js',
@@ -32,7 +30,7 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  // Network-first for API calls, cache-first for everything else
+  // Network-first for API calls
   if (event.request.url.indexOf('api.anthropic.com') >= 0 ||
       event.request.url.indexOf('firestore.googleapis.com') >= 0 ||
       event.request.url.indexOf('identitytoolkit.googleapis.com') >= 0) {
@@ -45,19 +43,31 @@ self.addEventListener('fetch', function(event) {
     );
     return;
   }
+  // Network-first for HTML pages -- always get latest version
+  if (event.request.url.indexOf('.html') >= 0 ||
+      event.request.url.endsWith('/solm/') ||
+      event.request.url.endsWith('/solm')) {
+    event.respondWith(
+      fetch(event.request).then(function(response) {
+        if (response.ok) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(event.request, clone);
+          });
+        }
+        return response;
+      }).catch(function() {
+        return caches.match(event.request).then(function(cached) {
+          return cached || new Response('Offline', {status: 503});
+        });
+      })
+    );
+    return;
+  }
+  // Cache-first for static assets (fonts, firebase libs)
   event.respondWith(
     caches.match(event.request).then(function(cached) {
-      if (cached) {
-        // Return cache immediately, update in background
-        fetch(event.request).then(function(response) {
-          if (response.ok) {
-            caches.open(CACHE_NAME).then(function(cache) {
-              cache.put(event.request, response);
-            });
-          }
-        }).catch(function() {});
-        return cached;
-      }
+      if (cached) return cached;
       return fetch(event.request).then(function(response) {
         if (response.ok) {
           var clone = response.clone();
