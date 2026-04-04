@@ -1,4 +1,4 @@
-var CACHE_NAME = 'solm-v3';
+var CACHE_NAME = 'solm-v4';
 var URLS_TO_CACHE = [
   './',
   './index.html',
