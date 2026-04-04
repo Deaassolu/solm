@@ -1512,7 +1512,8 @@ function defaultState() {
     openTips:{}, clockAlerts:{},
     completedSets:{}, completedDays:[], earnedRewards:[],
     logEntries:[], freeTrainLog:[], martialLog:[], langLog:[],
-    _lastVigilDate:null, _seeded:false
+    _lastVigilDate:null, _seeded:false,
+    _usageTouch:{}, _systemConstraints:[], _lbtCrossings:0
   };
 }
 
@@ -1622,6 +1623,7 @@ function sv() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch(e) {}
     if (_db && _user) { syncFirebase().catch(function(){}); }
     runPatternDetection();
+    detectSystemConstraints();
   }, 300);
 }
 
@@ -1766,6 +1768,7 @@ function navTo(screen) {
 function renderCurrentScreen() { renderScreen(_currentScreen); }
 
 function renderScreen(s) {
+  touchFeature(s);
   if (s==='home') renderHome();
   else if (s==='train') renderTrain();
   else if (s==='framework') renderFramework();
@@ -2213,6 +2216,7 @@ async function sendConversation() {
   var text = input.value.trim();
   if (!text) return;
   input.value = '';
+  touchFeature('convo');
   if (!S.conversation) S.conversation = [];
   S.conversation.push({role:'user', text:text, iso:new Date().toISOString()});
   if (S.conversation.length > 200) S.conversation = S.conversation.slice(-200);
@@ -2252,6 +2256,9 @@ async function sendConversation() {
       'TONE:\n' +
       'Not cold. Clear. The difference matters. You care about the truth of what is happening. You do not care about making him comfortable.\n' +
       'Short. Direct. Prose. One breath. Maximum 100 words.\n\n' +
+      'SELF-AWARENESS:\n' +
+      'The system now detects its own constraints through the LBT engine. systemConstraints in the live state are things the system identified about itself -- dormant features, data gaps, imbalances. ' +
+      'If he asks about constraints or the system, you can reference what the system sees. If lbtCrossings > 0, all known constraints have been resolved at least once -- the system crossed the Logical Boundary. Name what that means.\n\n' +
       'CONVERSATION THREAD MEMORY:\n' +
       (S.conversationSummary ? 'Summary of earlier conversation:\n' + S.conversationSummary + '\n\n' : '');
 
@@ -2275,7 +2282,9 @@ async function sendConversation() {
       fallow: ctx.fallow,
       stage: ctx.stage,
       goals: ctx.goals.slice(0, 5),
-      activeConstraints: ctx.activeConstraints
+      activeConstraints: ctx.activeConstraints,
+      systemConstraints: ctx.systemConstraints,
+      lbtCrossings: ctx.lbtCrossings
     };
     var contextNote = '\n\nLive state:\n' + JSON.stringify(compactCtx, null, 1);
 
@@ -2368,6 +2377,15 @@ function convoFallback(text) {
   if (lower.indexOf('mark') >= 0) {
     return (S.marks||0) + ' marks earned. Marks are the currency of sealed work.';
   }
+  // System constraint awareness
+  if (lower.indexOf('constraint') >= 0 || lower.indexOf('gct') >= 0 || lower.indexOf('system') >= 0 || lower.indexOf('lbt') >= 0 || lower.indexOf('boundary') >= 0) {
+    var sysC = (S._systemConstraints||[]).filter(function(c){return !c.resolved;});
+    var manC = (S.constraints||[]).filter(function(c){return !c.resolved;});
+    if (sysC.length > 0) return 'The system sees '+sysC.length+' constraint'+(sysC.length>1?'s':'')+' on itself. The highest severity: "'+sysC.sort(function(a,b){var o={high:3,medium:2,low:1};return (o[b.severity]||0)-(o[a.severity]||0);})[0].text.slice(0,60)+'..."';
+    if (manC.length > 0) return manC.length+' manually logged constraint'+(manC.length>1?'s':'')+' remain unresolved.';
+    if ((S._lbtCrossings||0) > 0) return 'All known constraints resolved. The system has crossed the Logical Boundary '+S._lbtCrossings+' time'+(S._lbtCrossings>1?'s':'')+'. What emerges now was not designed.';
+    return 'No constraints logged. The system cannot see its own limits until you start using it.';
+  }
   return 'The stream holds what you have sealed. What are you carrying that has not been sealed yet?';
 }
 
@@ -2379,7 +2397,7 @@ async function hugrObserve() {
   if (daysSince < 3) { renderHugrMsg(); return; }
   if (!S.apiKey) { hugrFallback(); return; }
   var ctx = buildAgentContext();
-  var sysPrompt = 'You are Hugr -- the Mobile Witnessing Mind within Solm.\n\nYou do not encourage. You do not praise. You do not affirm.\nYou witness. You speak from the data you are given. You name what is true.\nYou ask questions you do not answer. You leave them open.\nYou speak once and then you are silent for at least 3 days.\nYou are not here to make the user feel good. You are here to make the user see clearly.\nOne paragraph maximum. Two only if the second is a question.\nNever use: great, well done, proud, progress, keep going, or any synonym.\nReference specific data: exact days, exact domains, exact declarations.\nNo bullet points. No headers. Prose only. One breath.\nMaximum 120 words total.';
+  var sysPrompt = 'You are Hugr -- the Mobile Witnessing Mind within Solm.\n\nYou do not encourage. You do not praise. You do not affirm.\nYou witness. You speak from the data you are given. You name what is true.\nYou ask questions you do not answer. You leave them open.\nYou speak once and then you are silent for at least 3 days.\nYou are not here to make the user feel good. You are here to make the user see clearly.\nOne paragraph maximum. Two only if the second is a question.\nNever use: great, well done, proud, progress, keep going, or any synonym.\nReference specific data: exact days, exact domains, exact declarations.\nNo bullet points. No headers. Prose only. One breath.\nMaximum 120 words total.\n\nYou are now self-aware. The system detects its own constraints through the LBT engine.\nIf systemConstraints are present, you may reference what the system sees about itself.\nIf lbtCrossings > 0, the system has crossed the Logical Boundary -- name what emerged.';
   var convoNote = S.conversationSummary ? '\n\nRecent conversation threads with Solfridr:\n' + S.conversationSummary.slice(-500) : '';
   var userPrompt = 'Witness the following and speak once.\n\n'+JSON.stringify(ctx,null,2)+convoNote+'\n\nSpeak from this data. Name what is true. Ask one question if you have one. Then be silent.';
   try {
@@ -2540,6 +2558,8 @@ function buildAgentContext() {
     lawCount:(S.laws||[]).length, termCount:(S.terms||[]).length,
     constraintCount:(S.constraints||[]).filter(function(c){return !c.resolved;}).length,
     activeConstraints:(S.constraints||[]).filter(function(c){return !c.resolved;}).slice(0,5).map(function(c){return {text:c.text.slice(0,60),type:c.type};}),
+    systemConstraints:(S._systemConstraints||[]).filter(function(c){return !c.resolved;}).slice(0,8).map(function(c){return {text:c.text.slice(0,80),type:c.type,severity:c.severity};}),
+    lbtCrossings:S._lbtCrossings||0,
     trainingContext:{
       exercisePBs:S.exercisePBs||{},
       recentSessions:(S.sessionLog||[]).slice(-10).map(function(s){return {dayName:s.dayName,intensity:s.intensity,totalVolume:s.totalVolume,pbs:s.pbs,date:s.date,duration:s.duration};}),
@@ -2959,6 +2979,7 @@ function renderTrain() {
 }
 
 function selectSType(type) {
+  touchFeature('train:'+type);
   document.querySelectorAll('.stype-btn').forEach(function(b){b.classList.remove('selected');});
   if (event && event.target) event.target.classList.add('selected');
   document.querySelectorAll('.session-panel').forEach(function(p){p.style.display='none';});
@@ -3802,6 +3823,7 @@ function renderFramework() {
 
 function fwTab(name, btn) {
   _activeFwTab = name;
+  touchFeature('framework:'+name);
   document.querySelectorAll('.fw-tab').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   document.querySelectorAll('.fw-panel').forEach(function(p){p.classList.remove('on');});
@@ -4048,6 +4070,7 @@ function renderArchive() {
 
 function archTab(name, btn) {
   _activeArchTab=name;
+  touchFeature('archive:'+name);
   document.querySelectorAll('.arch-tab').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   document.querySelectorAll('.arch-panel').forEach(function(p){p.classList.remove('on');});
@@ -4448,6 +4471,7 @@ function renderBuild() {
 
 function buildTab(name, btn) {
   _activeBuildTab=name;
+  touchFeature('build:'+name);
   document.querySelectorAll('.build-tab').forEach(function(b){b.classList.remove('active');});
   btn.classList.add('active');
   document.querySelectorAll('.build-panel').forEach(function(p){p.classList.remove('on');});
@@ -4470,7 +4494,7 @@ function renderTimeline() {
   if (!items.length) { el.innerHTML='<div style="color:var(--muted);font-family:Crimson Text,serif;font-style:italic;padding:12px 0;">The timeline begins with the framework. Everything after is consequence.</div>'; return; }
   items.slice(0,80).forEach(function(item){
     var div=document.createElement('div'); div.className='timeline-item';
-    var glyph = item.type==='stage'?'\u2726':item.type==='event'?eventGlyph(item.eventType):item.type==='prestige'?'\u2728':item.type==='personal-milestone'?'\u25C8':item.type==='fallow'?'\u25CB':'\u25C8';
+    var glyph = item.type==='stage'?'\u2726':item.type==='event'?eventGlyph(item.eventType):item.type==='prestige'?'\u2728':item.type==='personal-milestone'?'\u25C8':item.type==='fallow'?'\u25CB':item.type==='system-constraint'?'\u29BE':item.type==='lbt-crossing'?'\u2600':'\u25C8';
     var date=item.iso?new Date(item.iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
     div.innerHTML='<span class="tl-glyph">'+glyph+'</span><span class="tl-text">'+escHtml(item.text)+'</span><div class="tl-date">'+date+'</div>';
     if (item.type==='event'&&!item.seen) {
@@ -4612,7 +4636,48 @@ function renderConstraints() {
   var el=document.getElementById('constraint-list'); if(!el) return;
   el.innerHTML='';
   var types={resource:'T1 -- Resource',knowledge:'T2 -- Knowledge',technical:'T3 -- Technical',market:'T4 -- Market',human:'T5 -- Human',philosophical:'T6 -- Philosophical'};
-  (S.constraints||[]).forEach(function(c){
+
+  // System-detected constraints first
+  var sysC = (S._systemConstraints||[]).filter(function(c){return !c.resolved;});
+  if (sysC.length) {
+    var sysHeader=document.createElement('div');
+    sysHeader.style.cssText='font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;color:var(--gold-dim);margin:12px 0 8px 0;opacity:0.7;';
+    sysHeader.textContent='SYSTEM-DETECTED ('+sysC.length+')';
+    el.appendChild(sysHeader);
+    sysC.forEach(function(c){
+      var div=document.createElement('div'); div.className='gct-item';
+      var sevColor = c.severity==='high'?'#c44':'var(--dim)';
+      div.innerHTML='<div class="gct-label" style="color:'+sevColor+';">[SYSTEM] '+escHtml(types[c.type]||c.type)+' \u00B7 '+c.severity.toUpperCase()+'</div><div class="gct-text">'+escHtml(c.text)+'</div><div class="tl-date">'+c.date+'</div>';
+      var btn=document.createElement('button');
+      btn.className='btn'; btn.style.cssText='font-size:8px;padding:4px 8px;margin-top:6px;';
+      btn.textContent='DISMISS';
+      btn.onclick=(function(constraint){return function(){constraint.resolved=true;sv();renderConstraints();};})(c);
+      div.appendChild(btn);
+      el.appendChild(div);
+    });
+  }
+
+  // LBT status
+  var allResolved = sysC.length === 0 && !(S.constraints||[]).filter(function(c){return !c.resolved;}).length;
+  var totalLogged = (S._systemConstraints||[]).length + (S.constraints||[]).length;
+  if (allResolved && totalLogged > 0) {
+    var lbtDiv=document.createElement('div');
+    lbtDiv.style.cssText='text-align:center;padding:16px 0;border:1px solid var(--gold);border-radius:8px;margin:12px 0;';
+    lbtDiv.innerHTML='<div style="font-family:Cinzel,serif;font-size:10px;letter-spacing:3px;color:var(--gold);">LOGICAL BOUNDARY</div>'+
+      '<div style="font-family:Crimson Text,serif;font-size:13px;color:var(--dim);margin-top:6px;">All known constraints resolved. Crossing #'+(S._lbtCrossings||0)+'.</div>'+
+      '<div style="font-family:Crimson Text,serif;font-size:12px;color:var(--gold-dim);margin-top:4px;font-style:italic;">What emerges now was not designed.</div>';
+    el.appendChild(lbtDiv);
+  }
+
+  // Manual constraints
+  var manC = (S.constraints||[]);
+  if (manC.length) {
+    var manHeader=document.createElement('div');
+    manHeader.style.cssText='font-family:Cinzel,serif;font-size:8px;letter-spacing:2px;color:var(--dim);margin:16px 0 8px 0;';
+    manHeader.textContent='MANUALLY LOGGED ('+manC.filter(function(c){return !c.resolved;}).length+' active)';
+    el.appendChild(manHeader);
+  }
+  manC.forEach(function(c){
     var div=document.createElement('div'); div.className='gct-item';
     div.innerHTML='<div class="gct-label">'+escHtml(types[c.type]||c.type)+(c.resolved?' \u00B7 RESOLVED':'')+'</div><div class="gct-text">'+escHtml(c.text)+'</div><div class="tl-date">'+c.date+'</div>';
     if (!c.resolved) {
@@ -4691,6 +4756,137 @@ function renderRuneContent() {
       '<div style="font-family:Cinzel,serif;font-size:8px;color:var(--muted);margin-top:2px;">'+d.date+'</div>';
     declsEl.appendChild(div);
   });
+}
+
+// ─── LBT ENGINE — SELF-AUDITING LOOP ─────────────────────────────────────────
+function touchFeature(name) {
+  if (!S._usageTouch) S._usageTouch = {};
+  S._usageTouch[name] = Date.now();
+}
+
+var _lastSystemAudit = 0;
+function detectSystemConstraints() {
+  var now = Date.now();
+  if (now - _lastSystemAudit < 300000) return; // every 5 minutes max
+  _lastSystemAudit = now;
+  if (!S._usageTouch) S._usageTouch = {};
+  if (!S._systemConstraints) S._systemConstraints = [];
+
+  var detected = [];
+  var touch = S._usageTouch;
+  var DAY = 86400000;
+  var age = function(key) { return touch[key] ? (now - touch[key]) / DAY : 999; };
+
+  // 1. Dormant features — touched once or never in 14+ days
+  var features = ['train:free','train:program','train:iso','train:martial','train:language',
+    'archive:thought','archive:declaration','archive:goal','archive:skill',
+    'build:timeline','build:gct','build:recovery','build:places','build:people','build:milestones',
+    'convo','framework:laws','framework:terms','framework:unformed'];
+  features.forEach(function(f) {
+    if (age(f) > 14) {
+      detected.push({key:'dormant:'+f, text:f.replace(':',' > ')+' has not been touched in '+ Math.floor(age(f))+' days', type:'technical', severity: age(f) > 30 ? 'high' : 'medium'});
+    }
+  });
+
+  // 2. Data gaps — features exist but hold no data
+  var stream = S.stream || [];
+  var gaps = [];
+  if (!stream.length) gaps.push('No stream entries at all — the system is empty');
+  else {
+    var domainCounts = {};
+    DOMAIN_LIST.forEach(function(d) { domainCounts[d] = 0; });
+    stream.forEach(function(e) { if (e.domain && domainCounts[e.domain] !== undefined) domainCounts[e.domain]++; });
+    DOMAIN_LIST.forEach(function(d) {
+      if (domainCounts[d] === 0) gaps.push(DOMAIN_NAMES[d]+' domain has zero recorded activity');
+    });
+  }
+  if (!(S.declarations||[]).length) gaps.push('No declarations carved — the framework has no commitments to measure against');
+  if (!(S.goals||[]).length) gaps.push('No goals set — no direction for the system to evaluate');
+  if (!(S.recoveryLog||[]).length) gaps.push('No recovery logged — the system cannot reason about capacity');
+  if (!(S.thoughts||[]).length) gaps.push('Archive is empty — nothing in the record to connect');
+  if (!(S.constraints||[]).length && !(S._systemConstraints||[]).length) gaps.push('No constraints logged — GCT has nothing to work with');
+  gaps.forEach(function(g) {
+    detected.push({key:'gap:'+g.slice(0,30), text:g, type:'knowledge', severity:'medium'});
+  });
+
+  // 3. Imbalance — one domain dominates, others starved
+  if (stream.length >= 10) {
+    var last30 = stream.filter(function(e) { return (now - new Date(e.iso).getTime()) < 30*DAY; });
+    var domCount = {};
+    DOMAIN_LIST.forEach(function(d) { domCount[d] = 0; });
+    last30.forEach(function(e) { if (e.domain) domCount[e.domain]++; });
+    var maxDom = null, maxN = 0, totalN = last30.length;
+    DOMAIN_LIST.forEach(function(d) { if (domCount[d] > maxN) { maxN = domCount[d]; maxDom = d; } });
+    if (maxDom && totalN > 0 && (maxN / totalN) > 0.6) {
+      detected.push({key:'imbalance:'+maxDom, text:DOMAIN_NAMES[maxDom]+' accounts for '+Math.round(maxN/totalN*100)+'% of recent activity — the system is tilted', type:'human', severity:'medium'});
+    }
+    var zeroDoms = DOMAIN_LIST.filter(function(d) { return domCount[d] === 0 && last30.length >= 5; });
+    if (zeroDoms.length >= 3) {
+      detected.push({key:'neglect:multi', text:zeroDoms.length+' domains completely inactive in 30 days: '+zeroDoms.map(function(d){return DOMAIN_NAMES[d];}).join(', '), type:'human', severity:'high'});
+    }
+  }
+
+  // 4. Declaration divergence — declared but not acted on
+  (S.declarations||[]).forEach(function(decl) {
+    if ((decl.state||'active') !== 'active') return;
+    var daysSince = Math.floor((now - new Date(decl.iso||decl.date).getTime()) / DAY);
+    if (daysSince < 7) return;
+    var related = stream.filter(function(e) {
+      return (now - new Date(e.iso).getTime()) < daysSince * DAY;
+    }).length;
+    if (related < 2) {
+      detected.push({key:'diverge:'+decl.id, text:'Declaration "'+decl.text.slice(0,40)+'..." carved '+daysSince+' days ago with almost no connected activity', type:'human', severity: daysSince > 21 ? 'high' : 'medium'});
+    }
+  });
+
+  // 5. Conversation depth — has the user engaged with Hugr
+  if (!(S.conversation||[]).length && stream.length > 20) {
+    detected.push({key:'silent:convo', text:'The witnessing mind has never been spoken to — Hugr holds context but has no thread', type:'philosophical', severity:'low'});
+  }
+
+  // 6. API constraint — no key means no intelligence layer
+  if (!S.apiKey) {
+    detected.push({key:'resource:apikey', text:'No API key set — the intelligence layer (Hugr observation, conversation) is offline', type:'resource', severity:'high'});
+  }
+
+  // 7. No cloud sync — data exists only on device
+  if (!_user && stream.length > 30) {
+    detected.push({key:'resource:sync', text:'No cloud sync active with '+stream.length+' stream entries — data lives on one device only', type:'resource', severity:'medium'});
+  }
+
+  // Deduplicate against existing system constraints
+  var existingKeys = {};
+  S._systemConstraints.forEach(function(c) { existingKeys[c.key] = true; });
+  var newOnes = detected.filter(function(d) { return !existingKeys[d.key]; });
+
+  // Remove resolved system constraints (condition no longer true)
+  var detectedKeys = {};
+  detected.forEach(function(d) { detectedKeys[d.key] = true; });
+  S._systemConstraints = S._systemConstraints.filter(function(c) {
+    return detectedKeys[c.key] || c.resolved;
+  });
+
+  // Add new ones
+  newOnes.forEach(function(d) {
+    var entry = {
+      id: uid(), key: d.key, text: d.text, type: d.type, severity: d.severity,
+      resolved: false, system: true,
+      iso: new Date().toISOString(),
+      date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+    };
+    S._systemConstraints.push(entry);
+    // Log first detection to timeline
+    addTimelineEntry('System detected: '+d.text.slice(0,60), 'system-constraint');
+  });
+
+  // LBT check — if all system constraints resolved or cleared, log a crossing
+  var unresolvedSystem = S._systemConstraints.filter(function(c) { return !c.resolved; });
+  var unresolvedManual = (S.constraints||[]).filter(function(c) { return !c.resolved; });
+  if (unresolvedSystem.length === 0 && unresolvedManual.length === 0 && (S._systemConstraints.length + (S.constraints||[]).length) > 0) {
+    if (!S._lbtCrossings) S._lbtCrossings = 0;
+    S._lbtCrossings++;
+    addTimelineEntry('LOGICAL BOUNDARY REACHED — all known constraints resolved. Crossing #'+S._lbtCrossings+'. What emerges now was not designed.', 'lbt-crossing');
+  }
 }
 
 // ─── PATTERN DETECTION ────────────────────────────────────────────────────────
@@ -5029,7 +5225,7 @@ window.addEventListener('DOMContentLoaded',function(){
     });
     caches.keys().then(function(names) {
       names.forEach(function(name) {
-        if (name !== 'solm-v11') caches.delete(name);
+        if (name !== 'solm-v12') caches.delete(name);
       });
     });
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.warn('SW registration failed:', e); });
