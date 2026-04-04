@@ -120,7 +120,9 @@ h1,h2,h3,.cinzel{font-family:'Cinzel',serif;}
 #fallow-indicator{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--green);padding:8px 16px;display:none;border-bottom:1px solid var(--rune);}
 /* CONVERSATION — centerpiece of Solm */
 #convo-wrap{margin:0 0 20px;padding:0;}
-#convo-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:8px;}
+#convo-card{background:var(--stone);border:1px solid var(--rune);border-radius:12px;padding:16px;position:relative;}
+#convo-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+#convo-label-icon{color:var(--gold-dim);font-size:11px;}
 #convo-thread{min-height:120px;max-height:60vh;overflow-y:auto;margin-bottom:12px;padding-bottom:4px;}
 #convo-thread::-webkit-scrollbar{width:2px;}
 #convo-thread::-webkit-scrollbar-thumb{background:var(--rune);}
@@ -220,10 +222,10 @@ h1,h2,h3,.cinzel{font-family:'Cinzel',serif;}
 .day-btn.active{border-color:var(--gold);color:var(--gold);}
 #intensity-declare{margin-bottom:16px;display:none;}
 #intensity-declare.on{display:block;}
-.exercise-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--rune);}
-.ex-name{font-family:'Crimson Text',serif;font-size:15px;flex:1;}
-.ex-presc{font-family:'Cinzel',serif;font-size:9px;color:var(--dim);letter-spacing:1px;}
-.set-squares{display:flex;gap:4px;}
+.exercise-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--rune);}
+.ex-name{font-family:'Crimson Text',serif;font-size:15px;flex:1;min-width:0;}
+.ex-presc{font-family:'Cinzel',serif;font-size:9px;color:var(--dim);letter-spacing:1px;flex-shrink:0;}
+.set-squares{display:flex;gap:4px;flex-wrap:wrap;width:100%;margin-top:4px;}
 .set-sq{width:22px;height:22px;background:var(--dark);border:1px solid var(--rune);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s ease;}
 .set-sq:active{transform:scale(0.85);}
 .set-sq.done{background:var(--gold);border-color:var(--gold);box-shadow:0 0 6px rgba(201,168,76,0.3);}
@@ -232,11 +234,20 @@ h1,h2,h3,.cinzel{font-family:'Cinzel',serif;}
 .set-sq.pb{background:var(--gold-hot);border-color:var(--gold-hot);box-shadow:0 0 8px rgba(244,200,66,0.4);}
 .set-input-inline{width:36px;background:var(--dark);border:1px solid var(--gold-dim);color:var(--gold);font-family:'Cinzel',serif;font-size:11px;text-align:center;padding:2px;outline:none;margin-left:4px;}
 .set-input-inline:focus{border-color:var(--gold);}
-.ex-feedback{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;color:var(--dim);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;}
+.ex-feedback{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;color:var(--dim);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap;width:100%;}
 .ex-feedback .fb-total{color:var(--gold-dim);}
 .ex-feedback .fb-last{color:var(--muted);}
 .ex-feedback .fb-pb{color:var(--gold-hot);}
-.ex-running-total{font-family:'Cinzel',serif;font-size:9px;color:var(--gold-dim);letter-spacing:1px;margin-bottom:2px;}
+.ex-running-total{font-family:'Cinzel',serif;font-size:9px;color:var(--gold-dim);letter-spacing:1px;margin-bottom:2px;width:100%;}
+/* FREE SESSION EXERCISES */
+#free-exercises{margin-top:12px;}
+.free-ex-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid var(--rune);}
+.free-ex-name{font-family:'Crimson Text',serif;font-size:15px;flex:1;min-width:0;}
+.free-ex-remove{background:transparent;border:1px solid var(--rune);color:var(--dim);font-family:'Cinzel',serif;font-size:7px;letter-spacing:1px;padding:2px 6px;cursor:pointer;flex-shrink:0;}
+.free-ex-sets{display:flex;gap:4px;flex-wrap:wrap;width:100%;margin-top:4px;}
+.free-ex-feedback{font-family:'Cinzel',serif;font-size:8px;color:var(--dim);letter-spacing:1px;width:100%;margin-top:3px;}
+#free-add-exercise-wrap{margin-top:12px;display:flex;gap:8px;}
+#free-ex-name-input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--rune);color:var(--light);font-family:'Crimson Text',serif;font-size:15px;padding:6px 0;outline:none;}
 /* MARKS */
 #marks-display{display:flex;align-items:center;gap:6px;padding:8px 0;margin-bottom:8px;}
 #marks-count{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);}
@@ -517,6 +528,19 @@ body.modal-open{overflow:hidden;}
 @supports(padding:max(0px)){
   #sync-status{padding-top:env(safe-area-inset-top);}
 }
+/* PHONE FITTING */
+@media(max-width:380px){
+  .set-sq{width:20px;height:20px;}
+  .set-input-inline{width:30px;font-size:10px;}
+  .day-btn{padding:8px 2px;font-size:8px;}
+  .day-btn .day-name{font-size:6px;}
+  .stat-val{font-size:16px;}
+  .ex-name{font-size:14px;}
+  .ex-presc{font-size:8px;}
+  #convo-thread{min-height:80px;max-height:40vh;}
+  .prog-day-card-name{font-size:12px;}
+  .prog-day-card-quote{font-size:13px;}
+}
 </style>
 </head>
 <body>
@@ -668,7 +692,6 @@ body.modal-open{overflow:hidden;}
       <div id="vigil-wrap"></div>
     </div>
     <div id="home-wrap">
-      <div id="skoll-line">SK&#214;LL IS RUNNING FAST.</div>
       <!-- WEEKLY INTENTION CARD -->
       <div class="solm-card" id="weekly-intent-wrap">
         <div class="solm-card-header">
@@ -679,11 +702,14 @@ body.modal-open{overflow:hidden;}
       </div>
       <!-- CONVERSATION — the reason this app exists -->
       <div id="convo-wrap">
-        <div id="convo-thread"></div>
-        <div id="convo-typing">...</div>
-        <div id="convo-input-wrap">
-          <textarea id="convo-input" rows="1" placeholder="" onkeydown="convoKeydown(event)"></textarea>
-          <button id="convo-send" onclick="sendConversation()">SPEAK</button>
+        <div id="convo-card">
+          <div id="convo-label"><span>HUGR</span><span id="convo-label-icon">&#10022;</span></div>
+          <div id="convo-thread"></div>
+          <div id="convo-typing">...</div>
+          <div id="convo-input-wrap">
+            <textarea id="convo-input" rows="1" placeholder="Speak to Hugr..." onkeydown="convoKeydown(event)"></textarea>
+            <button id="convo-send" onclick="sendConversation()">SPEAK</button>
+          </div>
         </div>
       </div>
       <div id="hugr-msg"></div>
@@ -770,6 +796,12 @@ body.modal-open{overflow:hidden;}
           <div id="session-actions">
             <button class="btn btn-gold btn-hold" id="free-start" onclick="freeStart()">START</button>
             <button class="btn btn-gold btn-hold" id="free-seal" onclick="freeSeal()" style="display:none;">SEAL</button>
+          </div>
+          <!-- Free session exercise logging -->
+          <div id="free-exercises"></div>
+          <div id="free-add-exercise-wrap" style="display:none;">
+            <input id="free-ex-name-input" type="text" placeholder="Exercise name..." onkeydown="if(event.key==='Enter'){event.preventDefault();addFreeExercise();}">
+            <button class="btn" style="font-size:9px;padding:6px 10px;flex-shrink:0;" onclick="addFreeExercise()">ADD</button>
           </div>
           <textarea id="session-note" placeholder="Note..." rows="2"></textarea>
         </div>
@@ -2111,11 +2143,7 @@ function renderRecords() {
 }
 
 function checkSkollCascade() {
-  var skoll = document.getElementById('skoll-line');
-  if (!skoll) return;
-  if (isInFallow()) { skoll.style.display='none'; return; }
-  var dark = DOMAIN_LIST.filter(function(d) { return (S.domains[d]||0)>=4; });
-  skoll.style.display = dark.length >= 3 ? 'block' : 'none';
+  // Skoll warning is now handled solely by vigil section (#skoll-line-vigil)
 }
 
 function onIntentionInput() {
@@ -2152,6 +2180,8 @@ function renderConvoThread() {
       input.placeholder = 'Skoll is running. What are you carrying?';
     } else if (msgs.length > 0) {
       input.placeholder = '';
+    } else {
+      input.placeholder = 'Speak to Hugr...';
     }
   }
 }
@@ -2671,9 +2701,9 @@ function logSet(exerciseName, dayId, sessionId, reps, duration, distance, load, 
     restBefore: restBefore, date: tod(), iso: now.toISOString()
   };
   S.setLog.push(record);
-  updateExercisePB(slug, exerciseName, record);
+  var isPB = updateExercisePB(slug, exerciseName, record);
   earnMarks(1, 'set', exerciseName);
-  return record;
+  return isPB;
 }
 
 function tod() { return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
@@ -2929,18 +2959,115 @@ function toggleThreshold(type) {
 }
 
 // FREE SESSION
+var _freeExercises = []; // [{name, id}] -- exercises added during free session
+
 function freeStart() {
   if (_freeRunning) return;
   if (!_freeInt) { showToast('Choose intensity first'); return; }
   _freeRunning = true;
   _sessionStart = Date.now();
+  _freeExercises = [];
+  if (!_activeSessionId) {
+    _activeSessionId = uid();
+    _activeSessionStart = new Date();
+  }
   wakeLockAcquire();
   document.getElementById('free-start').style.display = 'none';
   document.getElementById('free-seal').style.display = 'inline-block';
+  document.getElementById('free-add-exercise-wrap').style.display = 'flex';
   _sessionTimer = setInterval(function(){
     var elapsed = Math.floor((Date.now()-_sessionStart)/1000);
     updateTimerDisplay(elapsed);
   },1000);
+}
+
+function addFreeExercise() {
+  var input = document.getElementById('free-ex-name-input');
+  var name = input.value.trim();
+  if (!name) return;
+  input.value = '';
+  _freeExercises.push({name: name, id: uid()});
+  renderFreeExercises();
+  input.focus();
+}
+
+function renderFreeExercises() {
+  var el = document.getElementById('free-exercises');
+  if (!el) return;
+  el.innerHTML = '';
+  _freeExercises.forEach(function(ex) {
+    var slug = exerciseSlug(ex.name);
+    var sessionSets = (S.setLog||[]).filter(function(s){return s.sessionId===_activeSessionId&&s.exerciseId===slug;});
+    var lastSets = getLastSetsForExercise(slug, _activeSessionId);
+    var lastTotal = lastSets.reduce(function(a,s){return a+(s.reps||0);},0);
+    var currentTotal = sessionSets.reduce(function(a,s){return a+(s.reps||0);},0);
+    var row = document.createElement('div');
+    row.className = 'free-ex-row';
+    // Set squares — show completed + next input
+    var squares = '';
+    var maxSets = Math.max(sessionSets.length + 1, 5);
+    for (var i = 0; i < maxSets; i++) {
+      var setData = sessionSets[i];
+      if (setData) {
+        var isPB = S.exercisePBs[slug] && setData.reps === S.exercisePBs[slug].bestSet;
+        squares += '<div class="set-sq done' + (isPB ? ' pb' : '') + '" onclick="undoFreeSet(\'' + ex.id + '\',' + i + ')"><span class="set-reps">' + (setData.reps||'') + '</span></div>';
+      } else if (i === sessionSets.length) {
+        squares += '<div class="set-sq"><input class="set-input-inline" type="number" inputmode="numeric" pattern="[0-9]*" placeholder="' + (i+1) + '" onkeydown="freeSetKey(event,\'' + ex.id + '\',' + i + ')" id="fsi-' + ex.id + '-' + i + '"></div>';
+      } else {
+        squares += '<div class="set-sq"></div>';
+      }
+    }
+    var feedbackHtml = '';
+    if (sessionSets.length > 0 && lastTotal > 0) {
+      feedbackHtml = '<div class="free-ex-feedback">last: ' + lastTotal + ' -- today: ' + currentTotal + '</div>';
+    } else if (sessionSets.length > 0) {
+      feedbackHtml = '<div class="free-ex-feedback">' + currentTotal + ' reps this session</div>';
+    }
+    row.innerHTML = '<span class="free-ex-name">' + escHtml(ex.name) + '</span>' +
+      '<button class="free-ex-remove" onclick="removeFreeExercise(\'' + ex.id + '\')">X</button>' +
+      '<div class="free-ex-sets">' + squares + '</div>' + feedbackHtml;
+    el.appendChild(row);
+  });
+}
+
+function freeSetKey(e, exId, setIdx) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    var input = document.getElementById('fsi-' + exId + '-' + setIdx);
+    if (!input) return;
+    var val = parseInt(input.value);
+    if (!val || val <= 0) return;
+    var ex = _freeExercises.find(function(e){return e.id===exId;});
+    if (!ex) return;
+    haptic('light');
+    var isPB = logSet(ex.name, 'free', _activeSessionId, val, null, null, null, _freeInt);
+    gainXP(XP_TABLE.set);
+    if (isPB) showToast('NEW PB -- ' + ex.name);
+    sv();
+    renderFreeExercises();
+    setTimeout(function(){
+      var nextInput = document.getElementById('fsi-' + exId + '-' + (setIdx+1));
+      if (nextInput) nextInput.focus();
+    }, 50);
+  }
+}
+
+function undoFreeSet(exId, setIdx) {
+  var ex = _freeExercises.find(function(e){return e.id===exId;});
+  if (!ex) return;
+  var slug = exerciseSlug(ex.name);
+  var sessionSets = (S.setLog||[]).filter(function(s){return s.sessionId===_activeSessionId&&s.exerciseId===slug;});
+  if (setIdx < sessionSets.length) {
+    var idsToRemove = sessionSets.slice(setIdx).map(function(s){return s.id;});
+    S.setLog = (S.setLog||[]).filter(function(s){return idsToRemove.indexOf(s.id)<0;});
+    sv();
+    renderFreeExercises();
+  }
+}
+
+function removeFreeExercise(exId) {
+  _freeExercises = _freeExercises.filter(function(e){return e.id!==exId;});
+  renderFreeExercises();
 }
 
 function freeSeal() {
@@ -2951,17 +3078,33 @@ function freeSeal() {
   var elapsed = Math.floor((Date.now()-_sessionStart)/1000);
   var note = document.getElementById('session-note').value.trim();
   var xp = XP_TABLE[_freeInt]||30;
-  var entry = streamWrite('free',{domain:'body',intensity:_freeInt,duration:elapsed,note:note,xp:xp,threshold:_thresholdFlags.free});
+  var exCount = _freeExercises.length;
+  // Finalize session if sets were logged
+  var session = null;
+  var hasSets = (S.setLog||[]).some(function(s){return s.sessionId===_activeSessionId;});
+  if (hasSets) {
+    session = finalizeSession(_activeSessionId, 'free', 'Free Session', _freeInt);
+  }
+  var entry = streamWrite('free',{domain:'body',intensity:_freeInt,duration:elapsed,note:note,xp:xp,threshold:_thresholdFlags.free,sessionId:_activeSessionId});
   gainXP(xp); sv();
   document.getElementById('free-start').style.display='inline-block';
   document.getElementById('free-seal').style.display='none';
+  document.getElementById('free-add-exercise-wrap').style.display='none';
+  document.getElementById('free-exercises').innerHTML='';
   document.getElementById('timer-text').textContent='0:00';
   document.getElementById('timer-circle').style.strokeDashoffset='339.3';
   document.getElementById('session-note').value='';
+  _freeExercises = [];
   _freeInt=null; _thresholdFlags.free=false;
+  _activeSessionId=null; _activeSessionStart=null;
   var ttBox = document.getElementById('tt-free'); if (ttBox) { ttBox.classList.remove('on'); ttBox.textContent=''; }
   document.querySelectorAll('#panel-free .int-btn').forEach(function(b){b.classList.remove('selected');});
-  showReynslaPanel(entry);
+  if (session) {
+    showSessionSummary(session, null, exCount, exCount);
+    window._pendingReynslaEntry = entry;
+  } else {
+    showReynslaPanel(entry);
+  }
 }
 
 function updateTimerDisplay(seconds) {
@@ -4791,7 +4934,7 @@ window.addEventListener('DOMContentLoaded',function(){
     });
     caches.keys().then(function(names) {
       names.forEach(function(name) {
-        if (name !== 'solm-v7') caches.delete(name);
+        if (name !== 'solm-v8') caches.delete(name);
       });
     });
     navigator.serviceWorker.register('./sw.js').catch(function(e) { console.warn('SW registration failed:', e); });
